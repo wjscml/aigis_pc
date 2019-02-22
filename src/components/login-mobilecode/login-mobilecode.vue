@@ -26,7 +26,7 @@
     <span @click="change">密码登录</span>
     <span>忘记密码</span>
   </div>
-  <div class="submit-btn"><span>登录</span></div>
+  <div class="submit-btn" @click="register"><span>登录</span></div>
 </div>
 </template>
 
@@ -60,6 +60,34 @@ export default {
   methods: {
     change () {
       this.$emit('change')
+    },
+    register () {
+      this.$validator.validate().then(res => {
+        this.registerTips = ''
+        if (res) {
+          this.toRegister()
+        }
+      })
+    },
+    toRegister () {
+      let registerParam = {
+        captchaCodeKey: this.captchaCodeKey,
+        captchaCode: this.code,
+        mobileNumber: this.tel,
+        mobileCode: this.mobileCode,
+        password: this.password
+      }
+      getRegister (registerParam).then(res => {
+        if (!res.errorMessage) {
+          this.saveUserInfo(res)
+          this.isCorrect = true
+          this.registerTips = '成功注册！'
+          this.$router.push({ path: '/index' })
+        } else {
+          this.registerTips = res.errorMessage
+          this.isCorrect = false
+        }
+      })
     },
     getCode () {
       getCaptcha().then(res => {
@@ -101,6 +129,7 @@ export default {
         } else {
           this.registerTips = res.errorMessage
           this.isCorrect = false
+          this.refreshCode()
         }
       }).catch(error => {
         console.log(error)

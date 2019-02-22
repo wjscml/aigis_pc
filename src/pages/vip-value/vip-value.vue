@@ -152,5 +152,4 @@ export default {
           .red,.green
             color $color-white
 
-
 </style>

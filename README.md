@@ -1,4 +1,4 @@
-# alaya_pc
+# Aigis_pc
 
 ## Project setup
 ```

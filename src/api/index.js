@@ -8,6 +8,7 @@ const getMobileCode = postApi('user.getMobileCode')
 const getWxLogin = postApi('user.wxLogin')
 const getDigiccyScroll = postApi('web.getDataCoinSlide')
 const getDigiccyList = postApi('web.getCoinList')
+const getIndicators = postApi('indicator.getIndicators')
 const getIndexHeader = postApi('web.getIndexHeader')
 const getRecommend = postApi('web.getSpecialRecommend')
 const getHot = postApi('web.getTop10')
@@ -39,6 +40,7 @@ export {
   getWxLogin,
   getDigiccyScroll,
   getDigiccyList,
+  getIndicators,
   getIndexHeader,
   getRecommend,
   getHot,

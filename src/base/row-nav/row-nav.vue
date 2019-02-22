@@ -1,7 +1,7 @@
 <template>
   <div class="row-nav" v-if="nav.length">
     <div class="nav-btn" v-for="(item, index) in nav" :key="index" :class="{'nav-btn-s':index===type}" @click="change(index)">
-      {{item.name}}
+      {{item}}
     </div>
   </div>
 </template>

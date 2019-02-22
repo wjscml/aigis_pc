@@ -14,6 +14,14 @@ module.exports = {
         pathRewrite: {
           '^/apis': ''
         }
+      },
+      '/markets': {
+        target: '101.201.149.90',
+        ws: true,
+        changeOrigin: true,
+        pathRewrite: {
+          '^/markets': ''
+        }
       }
     }
   },

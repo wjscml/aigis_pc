@@ -7,8 +7,8 @@
         <div class="logo"><i class="icon-logo"></i></div>
         <h1 class="name">埃癸斯风险管理系统</h1>
       </div>
-      <login-login v-if="loginType==0" @change="changeType"></login-login>
-      <login-register v-if="loginType==1" @change="changeType"></login-register>
+      <login-password v-if="loginType==0" @change="changeType"></login-password>
+      <login-mobilecode v-if="loginType==1" @change="changeType"></login-mobilecode>
       <p class="copyright">©2018 Alaya.ai   鲁ICP备13045831号</p>
     </div>
 
@@ -16,8 +16,8 @@
 </template>
 
 <script>
-import LoginLogin from 'components/login-login/login-login.vue'
-import LoginRegister from 'components/login-register/login-register.vue'
+import LoginPassword from 'components/login-password/login-password.vue'
+import LoginMobilecode from 'components/login-mobilecode/login-mobilecode.vue'
 
 export default {
   data () {
@@ -155,8 +155,8 @@ export default {
     }
   },
   components: {
-    LoginLogin,
-    LoginRegister
+    LoginMobilecode,
+    LoginPassword
   }
 }
 </script>
@@ -206,6 +206,19 @@ export default {
         font-size 18px
     .login-wrapper
       flex 1
+      position relative
+      .tips-wrapper
+        position absolute
+        top -50px
+        left 0
+        line-height 40px
+        height 40px
+        width 100%
+        border-radius 4px
+        background-color $color-red
+        color $color-white
+        &.correct
+          background-color $color-green
       .input-wrapper
         position relative
         display flex
