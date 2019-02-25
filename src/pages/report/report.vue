@@ -1,41 +1,58 @@
 <template>
   <div class="report-wrapper">
-    <report-column :data="news"></report-column>
+    <report-column :data="nomalList" :timeKey="timeKey"></report-column>
+    <load-more :tips="tips"></load-more>
   </div>
 </template>
 
 <script>
 import ReportColumn from 'components/report-column/report-column'
-import { getNewsList } from 'api'
+import LoadMore from 'base/load-more/load-more'
+import { getNomalList } from 'api'
+import { mapGetters } from 'vuex'
 
 export default {
   data () {
     return {
-      news: [],
+      nomalList: [],
+      timeKey: [],
       tips: '点击加载更多'
     }
   },
+  computed: {
+    ...mapGetters([
+      'userInfo'
+    ])
+  },
   created () {
-    this._getNewsList()
+    this._getNomalList()
   },
   methods: {
-    _getNewsList (type) {
-      getNewsList({
+    _getNomalList () {
+      getNomalList({
+        session: this.userInfo.session,
         page: 0,
-        type: type
+        limit: 6
       }).then((res) => {
+        console.log(res)
         if (res) {
-          this.news = res
+          this.timeKey = Object.keys(res)
+
+          for (let i in res) {
+            this.nomalList.push(res[i])
+          }
+
           this.tips = '点击加载更多'
         } else {
-          this.news = []
+          this.nomalList = []
           this.tips = '暂无数据'
         }
       })
     }
   },
   components: {
-    ReportColumn
+    ReportColumn,
+    LoadMore
   }
 }
 </script>

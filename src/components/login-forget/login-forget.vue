@@ -1,7 +1,7 @@
 <template>
 <div class="login-wrapper">
-  <div class="tips-wrapper" v-show="loginTips" ref="tipsWrapper" :class="{'correct': isCorrect}">
-    <p class="tips">{{loginTips}}</p>
+  <div class="tips-wrapper" v-show="registerTips" ref="tipsWrapper" :class="{'correct': isCorrect}">
+    <p class="tips">{{registerTips}}</p>
   </div>
   <div class="input-wrapper" :class="{'error': errors.has('username')}">
     <input v-model="tel" v-validate="'required|numeric|length:11'" name="username" type="text" placeholder="手机号">
@@ -18,30 +18,36 @@
     <input v-model="mobileCode" v-validate="'required|numeric|length:4'" name="code" type="text" placeholder="短信验证码">
     <span class="common-error-tips" v-show="errors.has('code')">{{errors.first('code')}}</span>
     <div class="text send-code" v-show="!isSendCode && !isClick" @click="_getMobileCode">{{sendText}}</div>
-    <div class="text" v-show="isClick"><img class="loading" src="../../common/image/loading.gif" alt=""></div>
+    <div class="text" v-show="isClick"><img class="loading" src="~common/image/loading.gif" alt=""></div>
     <div class="text" v-show="isSendCode">{{count}}s</div>
   </div>
 
-  <div class="submit-upper">
-    <span @click="change">密码登录</span>
-    <span @click="forget">忘记密码</span>
+  <div class="input-wrapper" :class="{'error': errors.has('password')}">
+    <input v-model="password" v-validate="'required|min:6|max:18'" name="password" type="password" placeholder="请输入密码" @keyup.enter="register">
+    <span class="common-error-tips" v-show="errors.has('password')">{{errors.first('password')}}</span>
   </div>
-  <div class="submit-btn" @click="login"><span>登录</span></div>
+
+  <div class="submit-upper">
+    <span @click="loginPsw">密码登录</span>
+    <span @click="loginMob">短信验证码登录</span>
+  </div>
+  <div class="submit-btn" @click="register"><span>重置密码</span></div>
 </div>
 </template>
 
 <script>
-import { getMobileCode, getCaptcha, getLoginByMobileCode } from 'api'
+import { getMobileCode, getCaptcha, getForget } from 'api'
 import { mapActions } from 'vuex'
 
 const TIME_COUNT = 60
 export default {
   data () {
     return {
-      loginTips: '',
+      registerTips: '',
       tel: '',
       code: '',
       mobileCode: '',
+      password: '',
       captchaImage: '',
       isClick: false,
       isSendCode: false,
@@ -57,35 +63,36 @@ export default {
     ...mapActions([
       'saveUserInfo'
     ]),
-    change () {
-      this.$emit('change')
+    loginPsw () {
+      this.$emit('loginPsw')
     },
-    forget () {
-      this.$emit('forget')
+    loginMob () {
+      this.$emit('loginMob')
     },
-    login () {
+    register () {
       this.$validator.validate().then(res => {
         this.registerTips = ''
         if (res) {
-          this.toLogin()
+          this.toRegister()
         }
       })
     },
-    toLogin () {
-      let params = {
+    toRegister () {
+      let registerParam = {
         captchaCodeKey: this.captchaCodeKey,
         captchaCode: this.code,
         mobileNumber: this.tel,
-        mobileCode: this.mobileCode
+        mobileCode: this.mobileCode,
+        password: this.password
       }
-      getLoginByMobileCode(params).then(res => {
+      getForget(registerParam).then(res => {
         if (!res.errorMessage) {
           this.saveUserInfo(res)
           this.isCorrect = true
-          this.loginTips = '成功登录！'
+          this.registerTips = '密码修改成功！'
           this.$router.push({ path: '/index' })
         } else {
-          this.loginTips = res.errorMessage
+          this.registerTips = res.errorMessage
           this.isCorrect = false
         }
       })
@@ -105,13 +112,13 @@ export default {
         captchaCodeKey: this.captchaCodeKey,
         captchaCode: this.code,
         mobileNumber: this.tel,
-        usage: 2
+        usage: 3
       }
       getMobileCode(params).then(res => {
         this.isClick = false
         if (!res) {
           this.isSendCode = true
-          this.loginTips = '验证码发送成功！'
+          this.registerTips = '验证码发送成功！'
           this.isCorrect = true
           if (!this.timer) {
             this.count = TIME_COUNT
@@ -128,7 +135,7 @@ export default {
             }, 1000)
           }
         } else {
-          this.loginTips = res.errorMessage
+          this.registerTips = res.errorMessage
           this.isCorrect = false
           this.refreshCode()
         }

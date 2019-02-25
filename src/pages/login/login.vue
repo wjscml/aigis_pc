@@ -7,8 +7,9 @@
         <div class="logo"><i class="icon-logo"></i></div>
         <h1 class="name">埃癸斯风险管理系统</h1>
       </div>
-      <login-password v-if="loginType==0" @change="changeType"></login-password>
-      <login-mobilecode v-if="loginType==1" @change="changeType"></login-mobilecode>
+      <login-password v-if="loginType==0" @change="changeType" @forget="toForget"></login-password>
+      <login-mobilecode v-if="loginType==1" @change="changeType" @forget="toForget"></login-mobilecode>
+      <login-forget v-if="loginType==2" @loginPsw="loginPsw" @loginMob="loginMob"></login-forget>
       <p class="copyright">©2018 Alaya.ai   鲁ICP备13045831号</p>
     </div>
 
@@ -18,6 +19,8 @@
 <script>
 import LoginPassword from 'components/login-password/login-password.vue'
 import LoginMobilecode from 'components/login-mobilecode/login-mobilecode.vue'
+import LoginForget from 'components/login-forget/login-forget.vue'
+import { mapGetters } from 'vuex'
 
 export default {
   data () {
@@ -133,18 +136,32 @@ export default {
 
     animation()
   },
+  computed: {
+    ...mapGetters([
+      'userInfo'
+    ])
+  },
   created () {
-
+    if (this.userInfo && this.userInfo.length !== 0) {
+      this.$router.push({ path: '/index' })
+    }
   },
   methods: {
     changeType () {
       if (this.loginType === 0) {
         this.loginType = 1
-        console.log(this.loginType)
       } else if (this.loginType === 1) {
         this.loginType = 0
-        console.log(this.loginType)
       }
+    },
+    loginPsw () {
+      this.loginType = 0
+    },
+    loginMob () {
+      this.loginType = 1
+    },
+    toForget () {
+      this.loginType = 2
     },
     addClass (val) {
       document.getElementById(val).style.color = 'black'
@@ -156,7 +173,8 @@ export default {
   },
   components: {
     LoginMobilecode,
-    LoginPassword
+    LoginPassword,
+    LoginForget
   }
 }
 </script>
@@ -229,6 +247,8 @@ export default {
         border-radius 4px
         background-color $color-light-background
         color $color-white
+        &.error
+          outline 1px solid $color-red
         input
           flex 1
           background-color $color-light-background
@@ -240,6 +260,20 @@ export default {
           left 30px
           bottom -18px
           color $color-red
+        .imgCode
+          cursor pointer
+        .text
+          display flex
+          align-items center
+          padding-left 14px
+          color: $color-white
+          .loading
+            width 24px
+            height 24px
+          &.send-code
+            cursor: pointer
+            &:hover
+              color $color-light-blue
       .submit-upper
         display flex
         justify-content space-between

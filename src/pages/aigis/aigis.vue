@@ -13,8 +13,8 @@
         </div>
         <div class="user-box-wrapper">
           <i class="icon-bell"></i>
-          <img class="avatar" src="https://static.36krcnd.com/v1/20181105/YfPuR3I-qGKsl3V5g1nfMA906f68a624074dbe88c3b3b768a3ff22" alt="avatar">
-          <span class="name">Derek Foster</span>
+          <img class="avatar" :src="avatar" alt="avatar">
+          <span class="name">{{nickname}}</span>
         </div>
       </div>
     </div>
@@ -35,6 +35,7 @@
 <script>
 import SearchBox from 'base/search-box/search-box'
 import ScrollMarkets from 'components/scroll-markets/scroll-markets'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'aigis',
@@ -86,8 +87,23 @@ export default {
       default: null
     }
   },
+  computed: {
+    nickname () {
+      return this.userInfo.nickname
+    },
+    avatar () {
+      return this.userInfo.avatar
+    },
+    ...mapGetters([
+      'userInfo'
+    ])
+  },
   created () {
-
+    console.log(this.userInfo)
+    if (!this.userInfo || this.userInfo.length === 0) {
+      this.$router.push('/login')
+      alert('☺请先登录吖')
+    }
   },
   methods: {
     onQueryChange (newQuery, oldQuery) {

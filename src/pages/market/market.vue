@@ -23,8 +23,8 @@
         <div class="column" v-for="(column, index) in marketsData" :key="index">
           <span class="item name"><a class="name-z">{{column.name}}</a><br>{{column.code}}</span>
           <span class="item price" >{{column.value[0] | replaceZero}}</span>
-          <span class="item changePer" :class="column.value[4] < 0 ? 'green' : 'red'">{{column.value[5] | toPercent}}</span>
-          <span class="item change" :class="column.value[4] < 0 ? 'green' : 'red'">{{column.value[4] | replaceZero}}</span>
+          <span class="item changePer" :class="column.value[4] > 0 ? 'red' : (column.value[4] == 0 ? '' : 'green')">{{column.value[5] | toPercent}}</span>
+          <span class="item change" :class="column.value[4] > 0 ? 'red' : (column.value[4] == 0 ? '' : 'green')">{{column.value[4] | replaceZero}}</span>
           <span class="item high">{{column.value[1] | replaceZero}}</span>
           <span class="item low">{{column.value[2] | replaceZero}}</span>
           <span class="item open">{{column.value[2] | replaceZero}}</span>
@@ -41,6 +41,7 @@ import NoResult from 'base/no-result/no-result'
 import RowNav from 'base/row-nav/row-nav'
 import { getIndicators } from 'api'
 import { addClass, removeClass } from 'common/js/dom.js'
+import { mapGetters } from 'vuex'
 
 export default {
   data () {
@@ -60,6 +61,11 @@ export default {
       return str.replace(/00$/, '')
     }
   },
+  computed: {
+    ...mapGetters([
+      'userInfo'
+    ])
+  },
   created () {
     this._getIndicators(0)
   },
@@ -75,14 +81,12 @@ export default {
           return v1
         }, [])
       })([resultData, this.nameData])
-
       // let marketsData = resultData.map((o,i) => {
       //   return [o, this.nameData[i]]
       // })
 
       this.marketsData = []
       marketsData.forEach(el => {
-
         this.marketsData.push({
           name: el[1].name,
           code: el[1].code,
@@ -96,7 +100,7 @@ export default {
     },
     _getIndicators (type) {
       getIndicators({
-        session: 'LtTadpte9Z1uX9i1sag88yU7GX-pdKi5'
+        session: this.userInfo.session
       }).then(res => {
         this.marketNav = Object.keys(res)
         // this.marketNav.unshift('自选')
@@ -203,6 +207,8 @@ export default {
           &.price
             font-weight 600
             color $color-white
+          &.changePer,&.change
+            font-weight 600
           &.add
             width 8%
             margin-left 6%

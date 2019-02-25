@@ -28,12 +28,7 @@ export default {
   data () {
     return {
       type: 0,
-      valueNav: [
-        { name: '黄金' },
-        { name: '原油' },
-        { name: '铜' },
-        { name: '美元' }
-      ],
+      valueNav: [ '黄金', '原油', '铜', '美元' ],
       subNav: [
         { time: '近1月' },
         { time: '近3月' },

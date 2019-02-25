@@ -55,11 +55,7 @@ import Chart from 'base/chart/chart'
 export default {
   data () {
     return {
-      followNav: [
-        { name: '铜' },
-        { name: '黄金' },
-        { name: '美元' }
-      ],
+      followNav: [ '铜', '黄金', '美元' ],
       charts: {
         id: 'market0',
         title: '纽约铜',

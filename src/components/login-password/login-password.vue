@@ -1,16 +1,19 @@
 <template>
 <div class="login-wrapper">
-  <div class="input-wrapper">
+  <div class="tips-wrapper" v-show="loginTips" ref="tipsWrapper" :class="{'correct': isCorrect}">
+    <p class="tips">{{loginTips}}</p>
+  </div>
+  <div class="input-wrapper" :class="{'error': errors.has('username')}">
     <input v-model="tel" v-validate="'required|numeric|length:11'" name="username" type="text" placeholder="手机号">
     <span class="common-error-tips" v-show="errors.has('username')">{{errors.first('username')}}</span>
   </div>
-  <div class="input-wrapper">
-    <input v-model="password" v-validate="'required'" name="password" type="password" placeholder="密码">
+  <div class="input-wrapper" :class="{'error': errors.has('password')}">
+    <input v-model="password" v-validate="'required'" name="password" type="password" placeholder="密码" @keyup.enter="login">
     <span class="common-error-tips" v-show="errors.has('password')">{{errors.first('password')}}</span>
   </div>
   <div class="submit-upper">
-    <span @click="change">手机验证码登录</span>
-    <span>忘记密码</span>
+    <span @click="change">短信验证码登录</span>
+    <span @click="forget">忘记密码</span>
   </div>
   <div class="submit-btn" @click="login"><span>登录</span></div>
 </div>
@@ -18,6 +21,7 @@
 
 <script>
 import { getLogin } from 'api'
+import { mapActions } from 'vuex'
 
 export default {
   data () {
@@ -25,12 +29,18 @@ export default {
       tel: '',
       password: '',
       loginTips: '',
-      fromUrl: ''
+      isCorrect: ''
     }
   },
   methods: {
+    ...mapActions([
+      'saveUserInfo'
+    ]),
     change () {
       this.$emit('change')
+    },
+    forget () {
+      this.$emit('forget')
     },
     login () {
       this.$validator.validateAll().then(res => {
@@ -44,15 +54,11 @@ export default {
             console.log(res)
             if (res.errorMessage === '') {
               this.saveUserInfo(res.data)
-              this.$refs.tipsWrapper.style['background-color'] = '#04be02'
+              this.isCorrect = true
               this.loginTips = '成功登录！'
-              if (this.fromUrl === '/') {
-                this.$router.push({ path: '/index' })
-                return false
-              } else {
-                this.$router.back()
-              }
+              this.$router.push({ path: '/index' })
             } else {
+              this.isCorrect = false
               this.loginTips = res.errorMessage
             }
           })

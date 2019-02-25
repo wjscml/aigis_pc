@@ -3,43 +3,51 @@
     <div class="vip-report-nav">
       <row-nav :nav="reportNav"></row-nav>
     </div>
-    <report-column :data="news" :hasImg="false"></report-column>
+    <report-column :data="specialList" :timeKey="timeKey" :hasImg="false"></report-column>
+    <load-more :tips="tips"></load-more>
   </div>
 </template>
 
 <script>
 import ReportColumn from 'components/report-column/report-column'
 import RowNav from 'base/row-nav/row-nav'
-import { getCategories, getNewsList } from 'api'
+import LoadMore from 'base/load-more/load-more'
+import { getSpecialList } from 'api'
+import { mapGetters } from 'vuex'
 
 export default {
   data () {
     return {
-      news: [],
+      specialList: [],
+      timeKey: [],
       tips: '点击加载更多',
       reportNav: []
     }
   },
+  computed: {
+    ...mapGetters([
+      'userInfo'
+    ])
+  },
   created () {
-    this._getReportNav()
-    this._getNewsList()
+    this._getSpecialList()
   },
   methods: {
-    _getReportNav () {
-      getCategories().then(res => {
-        this.reportNav = res
-      })
-    },
-    _getNewsList (type) {
-      getNewsList({
-        page: 0,
-        type: type
+    _getSpecialList () {
+      getSpecialList({
+        session: this.userInfo.session
       }).then((res) => {
+        console.log(res)
         if (res) {
-          this.news = res
+          this.timeKey = Object.keys(res)
+
+          for (let i in res) {
+            this.specialList.push(res[i])
+          }
+
           this.tips = '点击加载更多'
         } else {
-          this.news = []
+          this.specialList = []
           this.tips = '暂无数据'
         }
       })
@@ -47,7 +55,8 @@ export default {
   },
   components: {
     ReportColumn,
-    RowNav
+    RowNav,
+    LoadMore
   }
 }
 </script>
