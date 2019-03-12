@@ -3,13 +3,15 @@ var globalCallback = null
 var serverPort = '8988' // webSocket连接端口
 
 function getWebIP () {
-  var curIP = '101.201.149.90'
+  var curIP = '117.50.49.131'
+  // var curIP = '192.168.31.63'
   return curIP
 }
 
 function initWebSocket () { // 初始化weosocket
   // ws地址
-  var wsuri = 'ws://' + getWebIP() + ':' + serverPort
+  // var wsuri = `${location.protocol === 'https' ? 'wss' : 'ws'}://` + location.host + '/websocket'
+  var wsuri = 'wss://aigis.leadfintech.com/wss'
   websock = new WebSocket(wsuri)
   websock.onmessage = function (e) {
     websocketonmessage(e)
@@ -23,7 +25,7 @@ function initWebSocket () { // 初始化weosocket
 
   // 连接发生错误的回调方法
   websock.onerror = function () {
-    console.log('WebSocket连接发生错误')
+    // console.log('WebSocket连接发生错误')
   }
 }
 
@@ -58,11 +60,11 @@ function websocketsend (agentData) {
 
 // 关闭
 function websocketclose (e) {
-  console.log("connection closed (' + e.code + ')")
+  // console.log("connection closed (' + e.code + ')")
 }
 
 function websocketOpen (e) {
-  console.log('连接成功')
+  // console.log('连接成功')
 }
 
 initWebSocket()

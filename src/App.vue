@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" v-wechat-title="$route.meta.title">
     <router-view :isIndex="isIndex"></router-view>
   </div>
 </template>

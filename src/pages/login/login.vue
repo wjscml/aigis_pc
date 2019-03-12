@@ -195,7 +195,7 @@ export default {
     z-index: -1
   .canvaszz
     width: 100%
-    background: url(common/image/bj.jpg) no-repeat center
+    background: url(./bj.jpg) no-repeat center
     // height: 640px
     position: absolute
     z-index: 10

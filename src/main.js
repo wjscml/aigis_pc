@@ -11,6 +11,8 @@ import 'common/stylus/index.styl'
 
 Vue.config.productionTip = false
 
+Vue.use(require('vue-wechat-title'))
+
 Vue.use(VeeValidate)
 Validator.localize('en', dict)
 

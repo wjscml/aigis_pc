@@ -5,6 +5,8 @@ const SEARCH_MAX_LEN = 15
 
 const LOGIN_STATE_KEY = '__loginState__'
 
+const STICK_KEY = '__stick__'
+
 function insertArray (arr, val, compare, maxLen) {
   const index = arr.findIndex(compare)
   if (index === 0) {
@@ -60,4 +62,13 @@ export function saveLoginState (data) {
 
 export function loadLoginState () {
   return storage.session.get(LOGIN_STATE_KEY, [])
+}
+
+export function saveStick (data) {
+  storage.set(STICK_KEY, data)
+  return data
+}
+
+export function loadStick () {
+  return storage.get(STICK_KEY, [])
 }

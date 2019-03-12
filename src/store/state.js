@@ -1,8 +1,9 @@
-import { loadLoginState } from 'common/js/cache'
+import { loadLoginState, loadStick } from 'common/js/cache'
 
 const state = {
   userInfo: loadLoginState(),
-  searchWord: ''
+  searchWord: '',
+  stickNumber: loadStick()
 }
 
 export default state

@@ -1,61 +1,76 @@
 <template>
   <div class="market">
-    <div class="market-nav">
+    <div class="market-nav" v-show="marketNav.length">
       <row-nav :nav="marketNav" @change="change"></row-nav>
     </div>
-    <div class="market-wrapper" v-if="marketsData.length">
-      <div class="subNav" v-if="false">
-        <div class="subNavItem" v-for="(item, index) in subNav" :key="index" :class="{'subNavItem-s':index===type}" @click="subChange(index)">
-          <span>{{item}}</span>
+    <div class="market-wrapper" v-show="marketsData.length">
+      <div v-for="(column, index) in marketsData" :key="index">
+        <div class="subNav" v-if="false">
+          <div class="subNavItem" v-for="(item, index) in subNav" :key="index" :class="{'subNavItem-s':index===type}" @click="subChange(index)">
+            <span>{{item}}</span>
+          </div>
         </div>
-      </div>
-      <div class="content">
-        <div class="column">
-          <span class="item name">资产</span>
-          <span class="item price">最新价</span>
-          <span class="item changePer red">涨跌幅</span>
-          <span class="item change green">涨跌额</span>
-          <span class="item high">最高价</span>
-          <span class="item low">最低价</span>
-          <span class="item open">开盘价</span>
-          <span class="item add">7</span>
+        <div class="content" v-show="index==type && column.length !== 0">
+          <div class="column">
+            <span class="item name">资产</span>
+            <span class="item price">最新价</span>
+            <span class="item changePer red">涨跌幅</span>
+            <span class="item change green">涨跌额</span>
+            <span class="item high">最高价</span>
+            <span class="item low">最低价</span>
+            <span class="item open">开盘价</span>
+            <span class="item add">7</span>
+          </div>
+          <div class="column" v-for="(item, itemIndex) in column" :key="item.id">
+            <span class="item name">
+              <a :href="`https://aigis.leadfintech.com:8800/?symbol=${item.code}&interval=1D&description=${item.name}`" target="_blank" class="name-z">{{item.name}}</a><br>{{item.code}}
+            </span>
+            <span class="item price">{{item.value[0] | toNumber}}</span>
+            <span class="item changePer" :class="item.value[4] > 0 ? 'red' : (item.value[4] == 0 ? '' : 'green')">{{item.value[5] | toPercent}}</span>
+            <span class="item change" :class="item.value[4] > 0 ? 'red' : (item.value[4] == 0 ? '' : 'green')">{{item.value[4] | toNumber}}</span>
+            <span class="item high">{{item.value[1] | toNumber}}</span>
+            <span class="item low">{{item.value[2] | toNumber}}</span>
+            <span class="item open">{{item.value[2] | toNumber}}</span>
+            <div class="item add" @click="addFavor(item, itemIndex)" v-show="item.status !== 1"><span>加自选</span></div>
+            <div class="item delete" @click="showConfirm(item, itemIndex)" v-show="item.status == 1"><span>删自选</span></div>
+          </div>
         </div>
-        <div class="column" v-for="(column, index) in marketsData" :key="index">
-          <span class="item name"><a class="name-z">{{column.name}}</a><br>{{column.code}}</span>
-          <span class="item price" >{{column.value[0] | replaceZero}}</span>
-          <span class="item changePer" :class="column.value[4] > 0 ? 'red' : (column.value[4] == 0 ? '' : 'green')">{{column.value[5] | toPercent}}</span>
-          <span class="item change" :class="column.value[4] > 0 ? 'red' : (column.value[4] == 0 ? '' : 'green')">{{column.value[4] | replaceZero}}</span>
-          <span class="item high">{{column.value[1] | replaceZero}}</span>
-          <span class="item low">{{column.value[2] | replaceZero}}</span>
-          <span class="item open">{{column.value[2] | replaceZero}}</span>
-          <div class="item add"><span>加自选</span></div>
-        </div>
+        <no-result tips="您还没有自选行情~" v-show="index==type && column.length == 0"></no-result>
       </div>
     </div>
-    <no-result :tips="'网络繁忙，请刷新重试'" v-if="!marketsData.length"></no-result>
+    <loading v-if="!marketsData.length"></loading>
+    <confirm @confirm="deleteFavor" :text="confirmText" ref="confirm"></confirm>
   </div>
 </template>
 
 <script>
 import NoResult from 'base/no-result/no-result'
+import Confirm from 'components/confirm/confirm'
 import RowNav from 'base/row-nav/row-nav'
-import { getIndicators } from 'api'
+import Loading from 'base/loading/loading'
+import { getIndicators, addFavorIndicator, getFavorIndicatorList } from 'api'
 import { addClass, removeClass } from 'common/js/dom.js'
 import { mapGetters } from 'vuex'
 
 export default {
   data () {
     return {
+      type: 0,
       marketsData: [],
       marketNav: [],
       subNav: [],
       agentData: [],
-      timer: null
+      nameData: [],
+      timer: null,
+      confirmText: ''
     }
   },
   filters: {
     toPercent (str) {
       return (Math.round(str * 10000) / 100).toFixed(2) + '%'
+    },
+    toNumber (str) {
+      return Number(str)
     },
     replaceZero (str) {
       return str.replace(/00$/, '')
@@ -69,77 +84,101 @@ export default {
   created () {
     this._getIndicators(0)
   },
-  methods: {
-    getConfigResult (res) {
-      let resultData = []
-      resultData = res.data
-      let marketsData = ((d) => {
-        return d.reduce((v1, v2) => {
-          v2.forEach((item, i) => {
-            (v1[i] || (v1[i] = [])).push(item)
-          })
-          return v1
-        }, [])
-      })([resultData, this.nameData])
-      // let marketsData = resultData.map((o,i) => {
-      //   return [o, this.nameData[i]]
-      // })
+  beforeMount () {
 
-      this.marketsData = []
-      marketsData.forEach(el => {
-        this.marketsData.push({
-          name: el[1].name,
-          code: el[1].code,
-          value: el[0].value
-        })
+  },
+  methods: {
+    toggleFavor (item, index, n) {
+      addFavorIndicator({
+        indicatorId: this.marketsData[this.type][index].id,
+        session: this.userInfo.session,
+        action: n
+      }).then(res => {
+        item.status = n
+        this._getIndicators(this.type)
       })
     },
-    requstSocketData (type) {
-      this.socketApi.sendSock(this.agentData, this.getConfigResult)
-      console.log(type)
+    addFavor (item, index) {
+      this.toggleFavor(item, index, 1)
+    },
+    deleteFavor () {
+      this.toggleFavor(this.item, this.i, 2)
+    },
+    showConfirm (item, index) {
+      this.item = item
+      this.i = index
+      this.confirmText = `是否不再关注 "${item.name}"`
+      this.$refs.confirm.show()
+    },
+    getConfigResult (res) {
+      let resultData = res.data
+      let marketsData = resultData.map((o, i) => {
+        return Object.assign(o, this.nameData[i])
+      })
+      let start = 0
+      let end = 0
+      this.marketsData = []
+      for (let i in this.marketsLength) {
+        if (i < 1) {
+          start = 0
+          end = this.marketsLength[0]
+        } else {
+          start = start + this.marketsLength[i - 1]
+          end = end + this.marketsLength[i]
+        }
+        this.marketsData.push(marketsData.slice(start, end))
+      }
+    },
+    requstSocketData (data) {
+      this.socketApi.sendSock(data, this.getConfigResult)
     },
     _getIndicators (type) {
+      this.marketsData = []
+      var agentData = {}
+      agentData.page = 'market_page'
+      agentData.data = []
+      var nameData = []
+      var marketsLength = []
+      var marketsData = []
       getIndicators({
         session: this.userInfo.session
       }).then(res => {
         this.marketNav = Object.keys(res)
-        // this.marketNav.unshift('自选')
-
-        let dataType = this.marketNav[type]
-        let data = res[dataType]
-
-        let agentData = []
-        let nameData = []
-        data.forEach(element => {
-          agentData.push({
-            table: element.table_name,
-            indicator: ['NOW', 'HIGH', 'LOW', 'OPEN', 'CHANGE', 'PCTCHANGE']
-          })
-          nameData.push({
-            name: element.indicator_name,
-            code: element.indicator_code
-          })
-        })
-        this.agentData = {
-          page: 'market_page',
-          data: agentData
+        this.marketNav.unshift('自选')
+        for (var i in res) {
+          marketsData.push(res[i])
         }
-        this.nameData = nameData
-        console.log(this.agentData)
-
-        this.timer = setInterval(() => {
-          this.socketApi.sendSock(this.agentData, this.getConfigResult)
-          console.log(type)
-        }, 1000)
-        this.$once('hook:beforeDestroy', () => {
-          clearInterval(this.timer)
+        getFavorIndicatorList({
+          session: this.userInfo.session
+        }).then(res => {
+          marketsData.unshift(res)
+          marketsData.forEach(element => {
+            marketsLength.push(element.length)
+            element.forEach(el => {
+              agentData.data.push({
+                table: el.table_name,
+                indicator: ['NOW', 'HIGH', 'LOW', 'OPEN', 'CHANGE', 'PCTCHANGE']
+              })
+              nameData.push({
+                name: el.indicator_name,
+                code: el.indicator_code,
+                id: el.indicator_id,
+                status: el.status
+              })
+            })
+          })
+          this.nameData = nameData
+          this.marketsLength = marketsLength
+          this.requstSocketData(agentData)
+          // this.timer = setInterval(() => {
+          //   this.requstSocketData(agentData)
+          // }, 4000)
         })
-        console.log(type)
       })
     },
     change (i) {
+      clearInterval(this.timer)
       this.type = i
-      this._getIndicators(i)
     },
     shadow () {
       addClass(this.$refs.test, 'red')
@@ -148,8 +187,13 @@ export default {
       }, 500)
     }
   },
+  destroyed () {
+    clearInterval(this.timer)
+  },
   components: {
     RowNav,
+    Loading,
+    Confirm,
     NoResult
   }
 }
@@ -164,9 +208,6 @@ export default {
     justify-content center
     margin 0 30px 30px 0
   .market-wrapper
-    padding 6px 0
-    border-radius 12px
-    background-color $color-light-background
     .subNav
       display flex
       align-items center
@@ -187,7 +228,9 @@ export default {
             height 2px
             background-color $color-blue
     .content
-      margin 6px 24px 0
+      padding 12px 24px
+      background-color $color-light-background
+      border-radius 12px
       .column
         display flex
         align-items center
@@ -204,6 +247,10 @@ export default {
             text-align left
             .name-z
               color $color-white
+            &:hover
+              cursor pointer
+              .name-z
+                color $color-light-blue
           &.price
             font-weight 600
             color $color-white
@@ -215,9 +262,26 @@ export default {
             display flex
             align-items center
             justify-content center
-            height 24px
-            border 1px solid $color-text
+            height 28px
+            background-color $color-blue
+            color $color-white
             border-radius 2px
+            cursor pointer
+            &:hover
+              background-color $color-dark-blue
+          &.delete
+            width 8%
+            margin-left 6%
+            display flex
+            align-items center
+            justify-content center
+            height 28px
+            background-color $color-light-purple
+            color $color-white
+            border-radius 2px
+            cursor pointer
+            &:hover
+              background-color $color-dark-blue
           &.red
             color $color-red
           &.green
@@ -232,6 +296,8 @@ export default {
               color $color-text
             &.add
               visibility hidden
+        &:nth-last-child(1)
+          border-bottom none
   .no-result-wrapper
     margin-top 100px
 </style>

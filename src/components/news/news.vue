@@ -1,5 +1,5 @@
 <template>
-  <div class="news-wrapper">
+  <div class="news-wrapper" v-show="news.length">
     <div class="news-top">
       <div class="title">
         <i class="icon-news"></i>
@@ -8,10 +8,13 @@
       <row-nav :nav="newsNav" @change="_getNewsList"></row-nav>
     </div>
     <div class="news-content" >
-      <div class="news-column" v-for="(column, index) in news" :key="index" v-show="news.length">
-        <div class="col-image" :title="column.title" :style="{backgroundImage: 'url('+column.thumb+')'}"></div>
+      <div class="news-column" v-for="(column, index) in news" :key="index">
+        <router-link :to="`/news/${column.id}`" tag="div" class="col-image" :title="column.title" :style="{backgroundImage: 'url('+column.thumb+')'}"
+         v-show="column.thumb !== 'https://www.cnibd.com/resource/images/newsBg.png' && column.thumb !== 'https://cnibd.oss-cn-beijing.aliyuncs.com/https://www.cnibd.com/resource/images/newsBg.png'"></router-link>
+        <router-link :to="`/news/${column.id}`" tag="div" class="col-image defaultImg" :title="column.title"
+         v-show="column.thumb == 'https://www.cnibd.com/resource/images/newsBg.png' || column.thumb == 'https://cnibd.oss-cn-beijing.aliyuncs.com/https://www.cnibd.com/resource/images/newsBg.png'"></router-link>
         <div class="col-text">
-          <h1 class="title">{{column.title}}</h1>
+          <router-link :to="`/news/${column.id}`" tag="h1" class="title">{{column.title}}</router-link>
           <p class="summary">{{column.summary}}</p>
         </div>
         <p class="info">{{column.author_name}} · {{column.publish_time}}</p>
@@ -44,7 +47,11 @@ export default {
   methods: {
     getNewsNav () {
       getCategories().then(res => {
-        this.newsNav = res.splice(0, 5)
+        this.newsNav = []
+        for (var i in res) {
+          this.newsNav.push(res[i].name)
+        }
+        this.newsNav = this.newsNav.slice(0, 5)
       })
     },
     _getNewsList (type) {
@@ -118,6 +125,9 @@ export default {
         background-repeat  no-repeat
         background-position left center
         background-size cover
+        cursor pointer
+        &.defaultImg
+          background-image url('./newsBg.png')
       .col-text
         float left
         box-sizing border-box
@@ -129,6 +139,9 @@ export default {
           font-weight 600
           font-size 16px
           color $color-white
+          &:hover
+            cursor pointer
+            color $color-light-blue
         .summary
           flex 1
           line-height 20px

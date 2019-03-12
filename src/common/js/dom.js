@@ -48,23 +48,3 @@ export function getRect (el) {
     }
   }
 }
-
-export function mergeArray (d) {
-  return d.reduce((v1, v2) => {
-    v2.forEach((item, i) => {
-      (v1[i] || (v1[i] = [])).push(item)
-    })
-    return v1
-  }, [])
-}
-
-export function mergeArray1 (a, b) {
-  ((d) => {
-    return d.reduce((v1, v2) => {
-      v2.forEach((item, i) => {
-        (v1[i] || (v1[i] = [])).push(item)
-      })
-      return v1
-    }, [])
-  })([a, b])
-}

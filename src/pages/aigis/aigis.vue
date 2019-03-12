@@ -1,5 +1,6 @@
 <template>
   <div class="aigis">
+
     <div class="top-wrapper">
       <div v-show="isIndex">
         <scroll-markets></scroll-markets>
@@ -12,10 +13,18 @@
           <search-box ref="searchBox" @query="onQueryChange"></search-box>
         </div>
         <div class="user-box-wrapper">
-          <i class="icon-bell"></i>
+
           <img class="avatar" :src="avatar" alt="avatar">
           <span class="name">{{nickname}}</span>
+          <div class="user-pulldown">
+            <ul>
+              <router-link to="/forget" tag="li">修改密码</router-link>
+              <li @click="showConfirm">退出登录</li>
+            </ul>
+            <div class="pulldown-bg"></div>
+          </div>
         </div>
+
       </div>
     </div>
     <div class="nav-wrapper">
@@ -30,12 +39,14 @@
     <div class="main-wrapper" :class="{'main-wrapper-index': isIndex}">
       <router-view></router-view>
     </div>
+    <confirm @confirm="logout" text="确定要退出登陆吗 ？" ref="confirm"></confirm>
   </div>
 </template>
 <script>
+import Confirm from 'components/confirm/confirm'
 import SearchBox from 'base/search-box/search-box'
 import ScrollMarkets from 'components/scroll-markets/scroll-markets'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 
 export default {
   name: 'aigis',
@@ -99,20 +110,32 @@ export default {
     ])
   },
   created () {
-    console.log(this.userInfo)
     if (!this.userInfo || this.userInfo.length === 0) {
       this.$router.push('/login')
       alert('☺请先登录吖')
     }
   },
   methods: {
+    ...mapActions([
+      'saveUserInfo'
+    ]),
+    logout () {
+      this.saveUserInfo()
+      this.$router.push({ path: '/login' })
+    },
+    showConfirm () {
+      if (this.userInfo && this.userInfo.length !== 0) {
+        this.$refs.confirm.show()
+      }
+    },
     onQueryChange (newQuery, oldQuery) {
       this.query = newQuery
     }
   },
   components: {
     SearchBox,
-    ScrollMarkets
+    ScrollMarkets,
+    Confirm
   }
 }
 </script>
@@ -121,6 +144,7 @@ export default {
 .aigis
   width 100%
   height 100%
+
   .top-wrapper
     .top-content
       display flex
@@ -139,6 +163,7 @@ export default {
         flex 1
         margin-right 100px
       .user-box-wrapper
+        position relative
         display flex
         align-items center
         color $color-light-purple
@@ -150,7 +175,45 @@ export default {
           height 40px
           border-radius 50%
         .name
+          min-width 56px
           margin 0 20px
+        &:hover
+          .user-pulldown
+            display block
+
+        .user-pulldown
+          display none
+          position absolute
+          width 96px
+          top 50px
+          right 10px
+          padding 6px 0
+          border-radius 4px
+          background-color $color-blue
+          box-shadow: 0 0 3px $color-background
+          z-index 2
+          &:before
+            content: ""
+            position: absolute
+            left: -40px
+            right 0
+            top: -20px
+            height: 20px
+          ul
+            li
+              line-height 32px
+              cursor pointer
+              text-align center
+              color $color-white
+              &:hover
+                background-color $color-dark-blue
+          .pulldown-bg
+            position absolute
+            width 100%
+            height 6px
+            top -6px
+            left 0
+            background url(./pulldown-bg.png) no-repeat center top
   .nav-wrapper
     margin-left 30px
     min-width 155px

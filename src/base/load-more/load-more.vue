@@ -37,10 +37,10 @@ export default {
     .text
       display inline-block
       font-size: 14px
-      color $color-purple
+      color $color-light-purple
       cursor pointer
       &:hover
-        color $color-light-blue
+        color $color-purple
     .image
       display inline-block
       vertical-align middle

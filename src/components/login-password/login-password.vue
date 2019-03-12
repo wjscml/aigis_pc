@@ -51,7 +51,6 @@ export default {
             password: this.password
           }
           getLogin(loginParam).then(res => {
-            console.log(res)
             if (res.errorMessage === '') {
               this.saveUserInfo(res.data)
               this.isCorrect = true

@@ -21,12 +21,18 @@ export default new Router({
         {
           path: '/index',
           name: 'index',
-          component: () => import('./pages/index/index.vue')
+          component: () => import('./pages/index/index.vue'),
+          meta: {
+            title: '首页 - Aigis - 埃癸斯风险控制系统'
+          }
         },
         {
           path: '/algorithm',
           name: 'algorithm',
-          component: () => import('./pages/algorithm/algorithm.vue')
+          component: () => import('./pages/algorithm/algorithm.vue'),
+          meta: {
+            title: '精选策略 - Aigis - 埃癸斯风险控制系统'
+          }
         },
         {
           path: '/algorithm/:id',
@@ -34,9 +40,17 @@ export default new Router({
           component: () => import('./pages/algorithm-detail/algorithm-detail.vue')
         },
         {
+          path: '/news/:id',
+          name: 'newsDetail',
+          component: () => import('./pages/news-detail/news-detail.vue')
+        },
+        {
           path: '/report',
           name: 'report',
-          component: () => import('./pages/report/report.vue')
+          component: () => import('./pages/report/report.vue'),
+          meta: {
+            title: '深度报告 - Aigis - 埃癸斯风险控制系统'
+          }
         },
         {
           path: '/report/:id',
@@ -46,12 +60,18 @@ export default new Router({
         {
           path: '/market',
           name: 'market',
-          component: () => import('./pages/market/market.vue')
+          component: () => import('./pages/market/market.vue'),
+          meta: {
+            title: '行情数据 - Aigis - 埃癸斯风险控制系统'
+          }
         },
         {
           path: '/vip_report',
           name: 'vipReport',
-          component: () => import('./pages/vip-report/vip-report.vue')
+          component: () => import('./pages/vip-report/vip-report.vue'),
+          meta: {
+            title: '专享报告 - Aigis - 埃癸斯风险控制系统'
+          }
         },
         {
           path: '/vip_report/:id',
@@ -61,14 +81,39 @@ export default new Router({
         {
           path: '/vip_follow',
           name: 'vipFollow',
-          component: () => import('./pages/vip-follow/vip-follow.vue')
+          component: () => import('./pages/vip-follow/vip-follow.vue'),
+          meta: {
+            title: '跟单指引 - Aigis - 埃癸斯风险控制系统'
+          }
         },
         {
           path: '/vip_value',
           name: 'vipValue',
-          component: () => import('./pages/vip-value/vip-value.vue')
+          component: () => import('./pages/vip-value/vip-value.vue'),
+          meta: {
+            title: '委托资管 - Aigis - 埃癸斯风险控制系统'
+          }
+        },
+        {
+          path: '/forget',
+          name: 'forget',
+          component: () => import('./pages/forget/forget.vue'),
+          meta: {
+            title: '忘记密码 - Aigis - 埃癸斯风险控制系统'
+          }
         }
       ]
+    },
+    {
+      path: '/404',
+      component: () => import('./pages/not-found/not-found.vue'),
+      meta: {
+        title: '404 - Aigis - 埃癸斯风险控制系统'
+      }
+    },
+    {
+      path: '*',
+      redirect: '/404'
     }
   ]
 })

@@ -25,7 +25,6 @@
 export default {
   data () {
     return {
-
     }
   },
   filters: {
@@ -48,11 +47,10 @@ export default {
     }
   },
   created () {
-    console.log(this.$route.path)
   },
   methods: {
     toDetail (id) {
-      this.$router.push(`${this.$route.path}/${id}`)
+      window.open(`${this.$route.path}/${id}`, '_blank')
     }
   }
 }

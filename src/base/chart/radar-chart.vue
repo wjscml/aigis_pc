@@ -41,7 +41,15 @@ export default {
       default: 'score'
     },
     sourceData: {
-    }
+    },
+    min: {
+      type: Number,
+      default: 0
+    },
+    max: {
+      type: Number,
+      default: 80
+    },
   },
   mounted () {
     const ds = new DataSet()
@@ -60,8 +68,8 @@ export default {
     })
     chart.source(dv, {
       score: {
-        min: 0,
-        max: 80
+        min: this.min,
+        max: this.max
       }
     })
     chart.coord('polar', {

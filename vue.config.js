@@ -7,20 +7,26 @@ function resolve (dir) {
 module.exports = {
   devServer: {
     proxy: {
+      '^~ /websocket': {
+        // target: 'https://117.50.49.131/8988',
+        target: 'https://aigis.leadfintech.com/wss',
+        ws: true,
+        changeOrigin: true
+      },
+      '/apis/news': {
+        target: 'https://api.cnibd.com',
+        ws: true,
+        changeOrigin: true,
+        pathRewrite: {
+          '^/apis/news': ''
+        }
+      },
       '/apis': {
-        target: 'http://api.dev.aigis.com',
+        target: 'https://aigis.leadfintech.com:8888',
         ws: true,
         changeOrigin: true,
         pathRewrite: {
           '^/apis': ''
-        }
-      },
-      '/markets': {
-        target: '101.201.149.90',
-        ws: true,
-        changeOrigin: true,
-        pathRewrite: {
-          '^/markets': ''
         }
       }
     }

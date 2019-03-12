@@ -1,7 +1,7 @@
 <template>
   <div class="row-nav" v-if="nav.length">
     <div class="nav-btn" v-for="(item, index) in nav" :key="index" :class="{'nav-btn-s':index===type}" @click="change(index)">
-      {{item}}
+      {{item | replace}}
     </div>
   </div>
 </template>
@@ -17,6 +17,11 @@ export default {
     nav: {
       type: Array,
       default: () => []
+    }
+  },
+  filters: {
+    replace (str) {
+      return str.match(/[\u4e00-\u9fa5]/g).join('')
     }
   },
   methods: {

@@ -1,119 +1,112 @@
 <template>
   <div class="charts-wrapper" ref="chartsWrapper">
     <div class="charts-column" v-for="(column, index) in charts" :key="index">
-      <div class="column-title" >
-        <p class="name">{{column.title}}</p>
-        <i class="icon-more" @click="toggleLayer(index)"></i>
-        <div class="layer_menu_list" v-show="index == limit">
-          <ul >
-            <li>置顶</li>
-            <li>删除行情</li>
-          </ul>
+      <a :href="`https://aigis.leadfintech.com:8800/?symbol=${column.code}&interval=1D&description=${column.name}`" target="_blank">
+        <div class="column-title" >
+          <p class="name">{{column.name}}</p>
+          <i class="icon-more" @click="toggleLayer(index)"></i>
+          <div class="layer_menu_list" v-show="index == limit">
+            <ul>
+              <li>置顶</li>
+            </ul>
+          </div>
+          <div class="mask" @click="hideLayer" v-show="index == limit"></div>
         </div>
-        <div class="mask" @click="hideLayer" v-show="index == limit"></div>
-
-      </div>
-      <chart :sourceData="column.data" :name="column.id" :height="186" :fieldsText="['Tokyo']" :tickCount="5" :textColor="'#fff'" :keyColor="['#fff']"></chart>
+        <chart ref="chart" :sourceData="column.data" :name="column.id" :height="186"
+        :fieldsText="['value']" :tickCount="5" :textColor="'#fff'" :keyColor="['#fff']"></chart>
+      </a>
     </div>
   </div>
 </template>
 
 <script>
 import Chart from 'base/chart/chart'
+import { mapActions, mapGetters } from 'vuex'
+import { getFavorIndicatorList, getDaysData, addFavorIndicator } from 'api'
 
+const default1 = { id: 1, indicator_id: 3, indicator_name: 'WTI原油当月连续', indicator_code: 'CL00Y.NYM', status: 1 }
+const default2 = { id: 9, indicator_id: 5, indicator_name: 'COMEX黄金', indicator_code: 'GC00Y.CMX', status: 1 }
+const default3 = { id: 10, indicator_id: 6, indicator_name: 'COMEX铜', indicator_code: 'HG00Y.CMX', status: 1 }
 export default {
   data () {
     return {
       limit: -1,
-      charts: [
-        {
-          id: 'market0',
-          title: '纽约铜',
-          value1: 21.36,
-          value2: 10.18,
-          value3: 32.72,
-          data: [
-            { month: '2019/01/11', Tokyo: 7.0 },
-            { month: '2019/01/12', Tokyo: 6.9 },
-            { month: '2019/01/13', Tokyo: 9.5 },
-            { month: '2019/01/14', Tokyo: 14.5 },
-            { month: '2019/01/15', Tokyo: 18.4 },
-            { month: '2019/01/16', Tokyo: 21.5 },
-            { month: '2019/01/17', Tokyo: 25.2 },
-            { month: '2019/01/18', Tokyo: 26.5 },
-            { month: '2019/01/19', Tokyo: 23.3 },
-            { month: '2019/01/20', Tokyo: 18.3 },
-            { month: '2019/01/21', Tokyo: 13.9 },
-            { month: '2019/01/22', Tokyo: 9.6 }
-          ]
-        },
-        {
-          id: 'market1',
-          title: '黄金',
-          value1: 21.36,
-          value2: 10.18,
-          value3: 32.72,
-          data: [
-            { month: '2019/01/11', Tokyo: 7.0 },
-            { month: '2019/01/12', Tokyo: 6.9 },
-            { month: '2019/01/13', Tokyo: 9.5 },
-            { month: '2019/01/14', Tokyo: 14.5 },
-            { month: '2019/01/15', Tokyo: 18.4 },
-            { month: '2019/01/16', Tokyo: 21.5 },
-            { month: '2019/01/17', Tokyo: 25.2 },
-            { month: '2019/01/18', Tokyo: 26.5 },
-            { month: '2019/01/19', Tokyo: 23.3 },
-            { month: '2019/01/20', Tokyo: 18.3 },
-            { month: '2019/01/21', Tokyo: 13.9 },
-            { month: '2019/01/22', Tokyo: 9.6 }
-          ]
-        },
-        {
-          id: 'market2',
-          title: '原油',
-          value1: 21.36,
-          value2: 10.18,
-          value3: 32.72,
-          data: [
-            { month: '2019/01/11', Tokyo: 7.0 },
-            { month: '2019/01/12', Tokyo: 6.9 },
-            { month: '2019/01/13', Tokyo: 9.5 },
-            { month: '2019/01/14', Tokyo: 14.5 },
-            { month: '2019/01/15', Tokyo: 18.4 },
-            { month: '2019/01/16', Tokyo: 21.5 },
-            { month: '2019/01/17', Tokyo: 25.2 },
-            { month: '2019/01/18', Tokyo: 26.5 },
-            { month: '2019/01/19', Tokyo: 23.3 },
-            { month: '2019/01/20', Tokyo: 18.3 },
-            { month: '2019/01/21', Tokyo: 13.9 },
-            { month: '2019/01/22', Tokyo: 9.6 }
-          ]
-        },
-        {
-          id: 'market3',
-          title: '美元汇率',
-          value1: 21.36,
-          value2: 10.18,
-          value3: 32.72,
-          data: [
-            { month: '2019/01/11', Tokyo: 7.0 },
-            { month: '2019/01/12', Tokyo: 6.9 },
-            { month: '2019/01/13', Tokyo: 9.5 },
-            { month: '2019/01/14', Tokyo: 14.5 },
-            { month: '2019/01/15', Tokyo: 18.4 },
-            { month: '2019/01/16', Tokyo: 21.5 },
-            { month: '2019/01/17', Tokyo: 25.2 },
-            { month: '2019/01/18', Tokyo: 26.5 },
-            { month: '2019/01/19', Tokyo: 23.3 },
-            { month: '2019/01/20', Tokyo: 18.3 },
-            { month: '2019/01/21', Tokyo: 13.9 },
-            { month: '2019/01/22', Tokyo: 9.6 }
-          ]
-        }
-      ]
+      charts: [],
+      chartsData: []
     }
   },
+  computed: {
+    ...mapGetters([
+      'userInfo',
+      'stickNumber'
+    ])
+  },
+  mounted () {
+  },
+  created () {
+    this.getData()
+  },
   methods: {
+    ...mapActions([
+      'saveStickNumber'
+    ]),
+    deleteFavor (item, i) {
+      addFavorIndicator({
+        indicatorId: item.indicatorId,
+        session: this.userInfo.session,
+        action: 2
+      }).then(res => {
+        this.toggleLayer(i)
+        console.log(res)
+        this.getData()
+      })
+    },
+    stick (i) {
+      this.toggleLayer(i)
+      this.saveStickNumber(i)
+      var returntop = this.charts[i]
+      this.charts.splice(i, 1)
+      this.charts.unshift(returntop)
+    },
+    _getDaysData (res) {
+      for (let r in res) {
+        getDaysData({
+          indicatorId: res[r].indicator_id
+        }).then(response => {
+          var data = []
+          for (let i in response) {
+            data.push({
+              time: response[i].ftime,
+              value: Number(response[i].CLOSE)
+            })
+          }
+          this.charts.push({
+            data: data,
+            id: 'indexChart' + res[r].id,
+            name: res[r].indicator_name,
+            indicatorId: res[r].indicator_id,
+            code: res[r].indicator_code
+          })
+        })
+      }
+    },
+    getData () {
+      getFavorIndicatorList({
+        session: this.userInfo.session
+      }).then(res => {
+        if (res.length > 1) {
+          this._getDaysData(res)
+        } else {
+          for (var i in res) {
+            if (res[i] === (default1 || default2 || default3)) {
+              res.splice(i, 1)
+            }
+          }
+          res.push(default1, default2, default3)
+          this._getDaysData(res)
+        }
+      })
+    },
     toggleLayer (i) {
       if (i === this.limit) {
         this.limit = -1
@@ -171,7 +164,7 @@ export default {
           li
             display block
             padding 0 20px
-            line-height 24px
+            line-height 28px
             color $color-white
             cursor pointer
             &:hover

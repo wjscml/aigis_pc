@@ -1,5 +1,5 @@
 <template>
-  <div class="report-detail">
+  <div class="report-detail" v-wechat-title="reportDetails.title">
     <div class="report-detail-wrapper" v-show="reportDetails.content">
       <div class="detail-header">
         <h1 class="title-box">{{reportDetails.title}}</h1>
@@ -54,11 +54,10 @@ export default {
         reportId: this.$route.params.id
       }).then(res => {
         // console.log(window.location.pathname)
-        console.log(res)
         this.reportDetails = res
+        console.log(res)
       })
     }
-
   },
   watch: {
     '$route' (to, from) {
@@ -97,7 +96,11 @@ export default {
     p
       border none!important
       background-color rgba(0, 0, 0, 0)!important
+      color $color-text!important
       span
         a
           color $color-text!important
+  .detail-text
+    b
+      line-height 32px!important
 </style>

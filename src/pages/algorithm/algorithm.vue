@@ -30,11 +30,7 @@ export default {
     _getAlgoList () {
       getCategories().then(res => {
         this.algoNav = res.splice(0, 5)
-        this.algoNav = [
-          { name: '策略评分' },
-          { name: '累计收益' },
-          { name: '年化收益' }
-        ]
+        this.algoNav = [ '策略评分', '累计收益', '年化收益' ]
       })
     },
     loadMore () {

@@ -1,14 +1,17 @@
 <template>
   <div class="vip-value-wrapper">
     <div class="vip-value-nav">
-      <row-nav :nav="valueNav"></row-nav>
+      <row-nav :nav="valueNav" @change="change"></row-nav>
     </div>
-    <div class="vip-value-content">
+    <div class="vip-value-content" v-show="valueList.length">
       <div class="value-subNav">
-        <span class="subNav-btn" :class="{'subNav-btn-s':index===type}" v-for="(item, index) in subNav" :key="index" @click="change(index)">{{item.time}}</span>
+        <span class="subNav-btn" :class="{'subNav-btn-s':index===time}" v-for="(item, index) in subNav" :key="index" @click="changeTime(index)">{{item.time}}</span>
       </div>
-      <div class="value-chart">
-        <chart :sourceData="charts.data" :name="charts.id" :fieldsText="['Tokyo']" :tickCount="11" :timeCount="5"></chart>
+      <div class="value-chart" v-for="(chart, index) in valueList" :key="index">
+        <div v-if="index==type">
+          <chart :sourceData="chart.nets" :name="`value${chart.indicator_id}`" :fieldsText="['净值']"
+          :tickCount="11" :timeCount="5" :tooltips="'<li>{name}: {value}</li>'"></chart>
+        </div>
       </div>
       <div class="value-info">
         <div class="item" v-for="(item, index) in valueInfo" :key="index">
@@ -17,18 +20,24 @@
         </div>
       </div>
     </div>
+    <loading v-if="!valueList.length"></loading>
   </div>
 </template>
 
 <script>
 import RowNav from 'base/row-nav/row-nav'
 import Chart from 'base/chart/chart'
+import Loading from 'base/loading/loading'
+import { mapGetters } from 'vuex'
+import { getValueList } from 'api'
+import { formatDate, formatNumber } from 'common/js/data.js'
 
 export default {
   data () {
     return {
       type: 0,
-      valueNav: [ '黄金', '原油', '铜', '美元' ],
+      time: 0,
+      valueNav: [],
       subNav: [
         { time: '近1月' },
         { time: '近3月' },
@@ -36,63 +45,86 @@ export default {
         { time: '近1年' },
         { time: '近3年' }
       ],
-      charts: {
-        id: 'market0',
-        title: '纽约铜',
-        value1: 21.36,
-        value2: 10.18,
-        value3: 32.72,
-        data: [
-          { month: '2019/01/11', Tokyo: 7.0 },
-          { month: '2019/01/12', Tokyo: 6.9 },
-          { month: '2019/01/13', Tokyo: 9.5 },
-          { month: '2019/01/14', Tokyo: 14.5 },
-          { month: '2019/01/15', Tokyo: 18.4 },
-          { month: '2019/01/16', Tokyo: 21.5 },
-          { month: '2019/01/17', Tokyo: 25.2 },
-          { month: '2019/01/18', Tokyo: 26.5 },
-          { month: '2019/01/19', Tokyo: 23.3 },
-          { month: '2019/01/20', Tokyo: 18.3 },
-          { month: '2019/01/21', Tokyo: 13.9 },
-          { month: '2019/01/22', Tokyo: 9.6 }
-        ]
-      },
-      valueInfo: [
-        {
-          name: '7日涨跌幅',
-          value: '+2.36%'
-        },
-        {
-          name: '基金净值',
-          value: '1.78'
-        },
-        {
-          name: '总资产',
-          value: '2,427,200'
-        },
-        {
-          name: '委托资金',
-          value: '2,000,000'
-        },
-        {
-          name: '累计收益率',
-          value: '21.36%'
-        },
-        {
-          name: '年化收益',
-          value: '10.18%'
-        }
-      ]
+      valueList: {},
+      valueInfo: []
     }
   },
+  computed: {
+    ...mapGetters([
+      'userInfo'
+    ])
+  },
+  created () {
+    this._getValueNav()
+    this._getValueList(0)
+  },
   methods: {
+    changeTime (i) {
+      this.time = i
+      console.log(i)
+    },
     change (i) {
       this.type = i
+      this._getValueList(i)
+    },
+    _getValueNav () {
+      getValueList({
+        session: this.userInfo.session
+      }).then(res => {
+        for (let i in res) {
+          this.valueNav.push(res[i].indicator_name)
+        }
+      })
+    },
+    _getValueList (type) {
+      getValueList({
+        session: this.userInfo.session
+      }).then(res => {
+        this.valueList = res
+        this.valueList.forEach(element => {
+          element.nets.forEach(el => {
+            el.time = formatDate(el.notice_time * 1000)
+            el.净值 = Number(el.now_nav)
+          })
+        })
+
+        let valueInfo = res[type]
+        this.valueInfo = [
+          {
+            name: '日涨跌幅',
+            value: this.toPercent(valueInfo.nets[0].pct_change)
+          },
+          {
+            name: '基金净值',
+            value: Number(valueInfo.nets[0].now_nav)
+          },
+          {
+            name: '总资产',
+            value: formatNumber(valueInfo.trust_amount + valueInfo.interest_amount)
+          },
+          {
+            name: '委托资金',
+            value: formatNumber(valueInfo.trust_amount)
+          },
+          {
+            name: '累计收益率',
+            value: this.toPercent(valueInfo.average_interest_rate)
+          },
+          {
+            name: '年化收益',
+            value: '10.18%'
+          }
+        ]
+      })
+    },
+    toPercent (str) {
+      return (Math.round(str * 10000) / 100).toFixed(2) + '%'
     }
   },
   components: {
     RowNav,
-    Chart
+    Chart,
+    Loading
   }
 }
 </script>

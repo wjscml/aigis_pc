@@ -4,7 +4,10 @@
       <row-nav :nav="reportNav"></row-nav>
     </div>
     <report-column :data="specialList" :timeKey="timeKey" :hasImg="false"></report-column>
-    <load-more :tips="tips"></load-more>
+    <div v-show="specialList.length">
+      <load-more @loadMore="loadmore" :tips="tips" :isLoad="isLoad"></load-more>
+    </div>
+    <loading v-if="!specialList.length"></loading>
   </div>
 </template>
 
@@ -12,16 +15,21 @@
 import ReportColumn from 'components/report-column/report-column'
 import RowNav from 'base/row-nav/row-nav'
 import LoadMore from 'base/load-more/load-more'
+import Loading from 'base/loading/loading'
 import { getSpecialList } from 'api'
 import { mapGetters } from 'vuex'
+import { extend } from 'common/js/data'
 
+const COUNT = 5
 export default {
   data () {
     return {
       specialList: [],
       timeKey: [],
       tips: '点击加载更多',
-      reportNav: []
+      reportNav: [],
+      isLoad: null,
+      page: 0
     }
   },
   computed: {
@@ -35,20 +43,43 @@ export default {
   methods: {
     _getSpecialList () {
       getSpecialList({
-        session: this.userInfo.session
+        session: this.userInfo.session,
+        page: 0,
+        limit: COUNT
       }).then((res) => {
-        console.log(res)
         if (res) {
+          this.sourceRes = res
           this.timeKey = Object.keys(res)
-
           for (let i in res) {
             this.specialList.push(res[i])
           }
-
           this.tips = '点击加载更多'
         } else {
           this.specialList = []
           this.tips = '暂无数据'
+        }
+      })
+    },
+    loadmore () {
+      this.tips = '加载中...'
+      this.isLoad = true
+      this.page++
+      getSpecialList({
+        session: this.userInfo.session,
+        page: this.page,
+        limit: COUNT
+      }).then(res => {
+        this.isLoad = false
+        if (res.length !== 0) {
+          this.sourceRes = extend(this.sourceRes, res)
+          this.timeKey = Object.keys(this.sourceRes)
+          this.specialList = []
+          for (let i in this.sourceRes) {
+            this.specialList.push(this.sourceRes[i])
+          }
+          this.tips = '点击加载更多'
+        } else {
+          this.tips = '没有更多数据了'
         }
       })
     }
@@ -56,7 +87,8 @@ export default {
   components: {
     ReportColumn,
     RowNav,
-    LoadMore
+    LoadMore,
+    Loading
   }
 }
 </script>
