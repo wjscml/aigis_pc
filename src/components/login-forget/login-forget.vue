@@ -18,7 +18,7 @@
     <input v-model="mobileCode" v-validate="'required|numeric|length:4'" name="code" type="text" placeholder="短信验证码">
     <span class="common-error-tips" v-show="errors.has('code')">{{errors.first('code')}}</span>
     <div class="text send-code" v-show="!isSendCode && !isClick" @click="_getMobileCode">{{sendText}}</div>
-    <div class="text" v-show="isClick"><img class="loading" src="~common/image/loading.gif" alt=""></div>
+    <div class="text" v-show="isClick"><img class="loading" src="~common/image/eclipse.gif" alt=""></div>
     <div class="text" v-show="isSendCode">{{count}}s</div>
   </div>
 

@@ -34,10 +34,12 @@ module.exports = {
   chainWebpack: config => {
     path.resolve('config')
     config.resolve.alias
+      .set('pages', resolve('src/pages'))
       .set('components', resolve('src/components'))
       .set('common', resolve('src/common'))
       .set('base', resolve('src/base'))
       .set('api', resolve('src/api'))
+      .set('src', resolve('src'))
   },
 
   css: {

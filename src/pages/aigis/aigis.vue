@@ -1,8 +1,7 @@
 <template>
   <div class="aigis">
-
     <div class="top-wrapper">
-      <div v-show="isIndex">
+      <div v-if="isIndex">
         <scroll-markets></scroll-markets>
       </div>
       <div class="top-content">

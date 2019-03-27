@@ -1,6 +1,6 @@
 <template>
   <div class="news-more">
-    <img class="image" src="./loading.png" v-show="isLoad">
+    <img class="image" src="./loading.gif" v-show="isLoad">
     <span class="text" @click="loadMore">{{tips}}</span>
   </div>
 </template>
@@ -30,10 +30,8 @@ export default {
     display flex
     align-items center
     justify-content center
+    height 20px
     margin 20px 0
-    .icon-pull_down
-      margin-right 4px
-      font-size 24px
     .text
       display inline-block
       font-size: 14px
@@ -44,19 +42,8 @@ export default {
     .image
       display inline-block
       vertical-align middle
-      margin-right 4px
-      width 14px
-      height 14px
-      animation: loadingRotate .4s linear infinite forwards
-@keyframes loadingRotate
-  0%
-    -webkit-transform: rotate(0) translateZ(0)
-    transform: rotate(0) translateZ(0)
-  50%
-    -webkit-transform: rotate(180deg) translateZ(0)
-    transform: rotate(180deg) translateZ(0)
-  100%
-    -webkit-transform: rotate(360deg) translateZ(0)
-    transform: rotate(360deg) translateZ(0)
+      margin-right 8px
+      width 20px
+      height 20px
 
 </style>

@@ -8,10 +8,8 @@
         <span class="subNav-btn" :class="{'subNav-btn-s':index===time}" v-for="(item, index) in subNav" :key="index" @click="changeTime(index)">{{item.time}}</span>
       </div>
       <div class="value-chart" v-for="(chart, index) in valueList" :key="index">
-        <div v-if="index==type">
-          <chart :sourceData="chart.nets" :name="`value${chart.indicator_id}`" :fieldsText="['净值']"
-          :tickCount="11" :timeCount="5" :tooltips="'<li>{name}: {value}</li>'"></chart>
-        </div>
+        <chart :sourceData="chart.nets" :name="`value${chart.indicator_id}`" :fieldsText="['净值']"
+        :tickCount="11" :timeCount="5" :tooltips="'<li>{name}: {value}</li>'"></chart>
       </div>
       <div class="value-info">
         <div class="item" v-for="(item, index) in valueInfo" :key="index">
@@ -55,8 +53,7 @@ export default {
     ])
   },
   created () {
-    this._getValueNav()
-    this._getValueList(0)
+    this._getValueData(0)
   },
   methods: {
     changeTime (i) {
@@ -65,29 +62,29 @@ export default {
     },
     change (i) {
       this.type = i
-      this._getValueList(i)
+      this._getValueData(i)
     },
-    _getValueNav () {
+    _getValueData (type) {
       getValueList({
         session: this.userInfo.session
       }).then(res => {
+        // nav
+        this.valueNav = []
         for (let i in res) {
           this.valueNav.push(res[i].indicator_name)
         }
-      })
-    },
-    _getValueList (type) {
-      getValueList({
-        session: this.userInfo.session
-      }).then(res => {
-        this.valueList = res
-        this.valueList.forEach(element => {
-          element.nets.forEach(el => {
-            el.time = formatDate(el.notice_time * 1000)
-            el.净值 = Number(el.now_nav)
-          })
+        // charts
+        this.valueList = []
+        let valueList = res[type]
+        valueList.nets.forEach(el => {
+          el.time = formatDate(el.notice_time * 1000)
+          el.净值 = Number(el.now_nav)
         })
-
+        this.$nextTick(() => {
+          this.valueList.push(valueList)
+        })
+        // info
+        this.valueInfo = []
         let valueInfo = res[type]
         this.valueInfo = [
           {
@@ -178,5 +175,4 @@ export default {
         &:nth-child(2),&:nth-child(4)
           .red,.green
             color $color-white
-
 </style>

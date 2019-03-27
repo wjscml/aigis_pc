@@ -274,7 +274,6 @@ export default {
       if (this.$route.params.id === '7002') {
         this.charts = chartsData[1]
         this.lcharts = lchartsData[1]
-
       }
       if (this.$route.params.id === '7003') {
         this.charts = chartsData[2]

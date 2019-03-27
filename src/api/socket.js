@@ -1,72 +1,86 @@
-var websock = null
-var globalCallback = null
-var serverPort = '8988' // webSocket连接端口
-
-function getWebIP () {
-  var curIP = '117.50.49.131'
-  // var curIP = '192.168.31.63'
-  return curIP
-}
-
-function initWebSocket () { // 初始化weosocket
-  // ws地址
-  // var wsuri = `${location.protocol === 'https' ? 'wss' : 'ws'}://` + location.host + '/websocket'
-  var wsuri = 'wss://aigis.leadfintech.com/wss'
-  websock = new WebSocket(wsuri)
-  websock.onmessage = function (e) {
-    websocketonmessage(e)
+class WebSocketClass {
+  constructor (name = 'default', data, msgCallback) {
+    this.data = data
+    this.msgCallback = msgCallback
+    this.name = name
+    this.ws = null // websocket对象
+    this.status = null // websocket是否关闭
   }
-  websock.onclose = function (e) {
-    websocketclose(e)
+  connect () {
+    // 新建 WebSocket 实例
+    const wsuri = 'wss://aigis.leadfintech.com/wss'
+    this.ws = new WebSocket(wsuri)
+    this.ws.onopen = e => {
+      // 连接ws成功回调
+      this.status = 'open'
+      // console.log(`${this.name}连接成功`, e)
+      this.heartCheck()
+      if (this.data !== undefined) {
+        // 有要传的数据,就发给后端
+        return this.ws.send(JSON.stringify(this.data))
+      }
+    }
+    // 监听服务器端返回的信息
+    this.ws.onmessage = e => {
+      // 把数据传给回调函数，并执行回调
+      if (e.data === 'pong') {
+        this.pingPong = 'pong' // 服务器端返回pong,修改pingPong的状态
+      } else {
+        return this.msgCallback(JSON.parse(e.data))
+      }
+    }
+    // ws关闭回调
+    this.ws.onclose = e => {
+      this.closeHandle(e) // 判断是否关闭
+    }
+    // ws出错回调
+    this.onerror = e => {
+      this.closeHandle(e) // 判断是否关闭
+    }
   }
-  websock.onopen = function () {
-    websocketOpen()
+  heartCheck () {
+    this.pingPong = 'ping' // ws的心跳机制状态值
+    this.pingInterval = setInterval(() => {
+      if (this.ws.readyState === 1) {
+        // 检查ws为链接状态 才可发送
+        this.ws.send('ping') // 客户端发送ping
+      }
+    }, 60000)
+    this.pongInterval = setInterval(() => {
+      // this.pingPong = false
+      if (this.pingPong === 'ping') {
+        this.closeHandle('pingPong没有改变为pong') // 没有返回pong 重启webSocket
+      }
+      // 重置为ping 若下一次 ping 发送失败 或者pong返回失败(pingPong不会改成pong)，将重启
+      // console.log('返回pong')
+      this.pingPong = 'ping'
+    }, 120000)
   }
-
-  // 连接发生错误的回调方法
-  websock.onerror = function () {
-    // console.log('WebSocket连接发生错误')
+  // 发送信息给服务器
+  sendHandle (data) {
+    // console.log(`${this.name}发送消息给服务器:`, data)
+    return this.ws.send(data)
+  }
+  closeHandle (e = 'err') {
+    // 因为webSocket并不稳定，规定只能手动关闭(调closeMyself方法)，否则就重连
+    if (this.status !== 'close') {
+      // console.log(`${this.name}断开，重连websocket`, e)
+      if (this.pingInterval !== undefined && this.pongInterval !== undefined) {
+        // 清除定时器
+        clearInterval(this.pingInterval)
+        clearInterval(this.pongInterval)
+      }
+      this.connect() // 重连
+    } else {
+      // console.log(`${this.name}websocket手动关闭`)
+    }
+  }
+  // 手动关闭WebSocket
+  closeMyself () {
+    // console.log(`关闭${this.name}`)
+    this.status = 'close'
+    return this.ws.close()
   }
 }
 
-// 实际调用的方法
-function sendSock (agentData, callback) {
-  globalCallback = callback
-  if (websock.readyState === websock.OPEN) {
-    // 若是ws开启状态
-    websocketsend(agentData)
-  } else if (websock.readyState === websock.CONNECTING) {
-    // 若是 正在开启状态，则等待1s后重新调用
-    setTimeout(function () {
-      sendSock(agentData, callback)
-    }, 1000)
-  } else {
-    // 若未开启 ，则等待1s后重新调用
-    setTimeout(function () {
-      sendSock(agentData, callback)
-    }, 1000)
-  }
-}
-
-// 数据接收
-function websocketonmessage (e) {
-  globalCallback(JSON.parse(e.data))
-}
-
-// 数据发送
-function websocketsend (agentData) {
-  websock.send(JSON.stringify(agentData))
-}
-
-// 关闭
-function websocketclose (e) {
-  // console.log("connection closed (' + e.code + ')")
-}
-
-function websocketOpen (e) {
-  // console.log('连接成功')
-}
-
-initWebSocket()
-
-export { sendSock }
+export default WebSocketClass

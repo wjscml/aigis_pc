@@ -66,6 +66,11 @@ export default new Router({
           }
         },
         {
+          path: '/marketDetail',
+          name: 'marketDetail',
+          component: () => import('./pages/marketDetail/marketDetail.vue')
+        },
+        {
           path: '/vip_report',
           name: 'vipReport',
           component: () => import('./pages/vip-report/vip-report.vue'),

@@ -24,7 +24,7 @@ export const dict = {
       required: '请阅读并确认注册协议'
     },
     agree: {
-      required: '请阅读并确认《赛恩财经用户协议》'
+      required: '请阅读并确认《用户协议》'
     },
     image_field: {
       required: '请上传图片',
@@ -33,29 +33,6 @@ export const dict = {
     },
     description: {
       min: '简介应该包含至少6个字符'
-    },
-    companyName: {
-      required: '请填写名称'
-    },
-    companyId: {
-      required: '请填写营业执照注册号'
-    },
-    name: {
-      required: '请填写姓名'
-    },
-    idCard: {
-      required: '请填写身份证号码',
-      numeric: '您输入的身份证号码有误',
-      length: '请输入18位身份证号码'
-    },
-    title: {
-      required: '请输入文章标题'
-    },
-    preface: {
-      required: '请输入文章导语'
-    },
-    cid: {
-      required: '请选择文章分类'
     }
   }
 }

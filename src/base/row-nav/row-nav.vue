@@ -21,6 +21,9 @@ export default {
   },
   filters: {
     replace (str) {
+      if (str === 'WTI原油当月连续') {
+        str = '原油'
+      }
       return str.match(/[\u4e00-\u9fa5]/g).join('')
     }
   },

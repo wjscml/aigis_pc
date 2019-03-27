@@ -26,11 +26,13 @@
               <a :href="`https://aigis.leadfintech.com:8800/?symbol=${item.code}&interval=1D&description=${item.name}`" target="_blank" class="name-z">{{item.name}}</a><br>{{item.code}}
             </span>
             <span class="item price">{{item.value[0] | toNumber}}</span>
-            <span class="item changePer" :class="item.value[4] > 0 ? 'red' : (item.value[4] == 0 ? '' : 'green')">{{item.value[5] | toPercent}}</span>
-            <span class="item change" :class="item.value[4] > 0 ? 'red' : (item.value[4] == 0 ? '' : 'green')">{{item.value[4] | toNumber}}</span>
+            <span class="item changePer" :class="item.value[6] > 0 ? 'red' : (item.value[6] == 0 ? '' : 'green')">{{item.value[7] | toPercent}}</span>
+
+            <span class="item change" :class="item.value[6] > 0 ? 'red' : (item.value[6] == 0 ? '' : 'green')">{{item.value[6] | toNumber}}</span>
+
             <span class="item high">{{item.value[1] | toNumber}}</span>
             <span class="item low">{{item.value[2] | toNumber}}</span>
-            <span class="item open">{{item.value[2] | toNumber}}</span>
+            <span class="item open">{{item.value[3] | toNumber}}</span>
             <div class="item add" @click="addFavor(item, itemIndex)" v-show="item.status !== 1"><span>加自选</span></div>
             <div class="item delete" @click="showConfirm(item, itemIndex)" v-show="item.status == 1"><span>删自选</span></div>
           </div>
@@ -50,18 +52,18 @@ import RowNav from 'base/row-nav/row-nav'
 import Loading from 'base/loading/loading'
 import { getIndicators, addFavorIndicator, getFavorIndicatorList } from 'api'
 import { addClass, removeClass } from 'common/js/dom.js'
+import { toDecimal } from 'common/js/data.js'
 import { mapGetters } from 'vuex'
+import WebSocketClass from 'api/socket.js'
 
 export default {
   data () {
     return {
       type: 0,
-      marketsData: [],
+      marketsData: {},
       marketNav: [],
       subNav: [],
-      agentData: [],
       nameData: [],
-      timer: null,
       confirmText: ''
     }
   },
@@ -70,10 +72,7 @@ export default {
       return (Math.round(str * 10000) / 100).toFixed(2) + '%'
     },
     toNumber (str) {
-      return Number(str)
-    },
-    replaceZero (str) {
-      return str.replace(/00$/, '')
+      return toDecimal(str)
     }
   },
   computed: {
@@ -82,9 +81,9 @@ export default {
     ])
   },
   created () {
-    this._getIndicators(0)
+    this._getIndicators()
   },
-  beforeMount () {
+  mounted () {
 
   },
   methods: {
@@ -94,8 +93,7 @@ export default {
         session: this.userInfo.session,
         action: n
       }).then(res => {
-        item.status = n
-        this._getIndicators(this.type)
+        item.status = res.status
       })
     },
     addFavor (item, index) {
@@ -111,73 +109,62 @@ export default {
       this.$refs.confirm.show()
     },
     getConfigResult (res) {
-      let resultData = res.data
-      let marketsData = resultData.map((o, i) => {
-        return Object.assign(o, this.nameData[i])
-      })
+      var that = this
+      for (let o in res) {
+        that.nameData[o].value = res[o]
+      }
       let start = 0
       let end = 0
-      this.marketsData = []
-      for (let i in this.marketsLength) {
+      that.marketsData = []
+      for (let i in that.marketsLength) {
         if (i < 1) {
           start = 0
-          end = this.marketsLength[0]
+          end = that.marketsLength[0]
         } else {
-          start = start + this.marketsLength[i - 1]
-          end = end + this.marketsLength[i]
+          start = start + that.marketsLength[i - 1]
+          end = end + that.marketsLength[i]
         }
-        this.marketsData.push(marketsData.slice(start, end))
+        that.marketsData.push(that.nameData.slice(start, end))
       }
     },
-    requstSocketData (data) {
-      this.socketApi.sendSock(data, this.getConfigResult)
-    },
-    _getIndicators (type) {
-      this.marketsData = []
-      var agentData = {}
-      agentData.page = 'market_page'
-      agentData.data = []
+    _getIndicators () {
       var nameData = []
-      var marketsLength = []
+      var agentData = []
       var marketsData = []
+      var marketsLength = []
       getIndicators({
         session: this.userInfo.session
       }).then(res => {
         this.marketNav = Object.keys(res)
         this.marketNav.unshift('自选')
         for (var i in res) {
-          marketsData.push(res[i])
+          marketsData = marketsData.concat(res[i])
+          marketsLength.push(res[i].length)
         }
+
         getFavorIndicatorList({
           session: this.userInfo.session
         }).then(res => {
-          marketsData.unshift(res)
-          marketsData.forEach(element => {
-            marketsLength.push(element.length)
-            element.forEach(el => {
-              agentData.data.push({
-                table: el.table_name,
-                indicator: ['NOW', 'HIGH', 'LOW', 'OPEN', 'CHANGE', 'PCTCHANGE']
-              })
-              nameData.push({
-                name: el.indicator_name,
-                code: el.indicator_code,
-                id: el.indicator_id,
-                status: el.status
-              })
+          marketsLength.unshift(res.length)
+          marketsData = res.concat(marketsData)
+          for (let o = 0; o < marketsData.length; o++) {
+            agentData.push(marketsData[o].table_name)
+            nameData.push({
+              name: marketsData[o].indicator_name,
+              code: marketsData[o].indicator_code,
+              id: marketsData[o].indicator_id,
+              status: marketsData[o].status,
+              value: []
             })
-          })
-          this.nameData = nameData
+          }
           this.marketsLength = marketsLength
-          this.requstSocketData(agentData)
-          // this.timer = setInterval(() => {
-          //   this.requstSocketData(agentData)
-          // }, 4000)
+          this.nameData = nameData
+          this.socket = new WebSocketClass('markets', agentData, this.getConfigResult)
+          this.socket.connect()
         })
       })
     },
     change (i) {
-      clearInterval(this.timer)
       this.type = i
     },
     shadow () {
@@ -187,8 +174,15 @@ export default {
       }, 500)
     }
   },
+  watch: {
+    type (val) {
+      this.socket.closeMyself()
+      this.marketsData = []
+      this._getIndicators()
+    }
+  },
   destroyed () {
-    clearInterval(this.timer)
+    this.socket.closeMyself()
   },
   components: {
     RowNav,
@@ -253,7 +247,7 @@ export default {
                 color $color-light-blue
           &.price
             font-weight 600
-            color $color-white
+            color $color-yellow
           &.changePer,&.change
             font-weight 600
           &.add

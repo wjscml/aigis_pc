@@ -5,7 +5,6 @@ import router from './router'
 import store from './store'
 import VeeValidate, { Validator } from 'vee-validate'
 import { dict } from 'common/js/messages.js'
-import * as socketApi from './api/socket'
 
 import 'common/stylus/index.styl'
 
@@ -16,10 +15,12 @@ Vue.use(require('vue-wechat-title'))
 Vue.use(VeeValidate)
 Validator.localize('en', dict)
 
-Vue.prototype.socketApi = socketApi
-
 new Vue({
   router,
   store,
   render: h => h(App)
 }).$mount('#app')
+
+router.afterEach((to, from, next) => {
+  window.scrollTo(0, 0)
+})

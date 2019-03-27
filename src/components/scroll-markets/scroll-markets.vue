@@ -1,34 +1,26 @@
 <template>
   <div class="scroll" v-show="scrollData.length">
-    <a v-for="(item, index) in scrollData" :key="index" :href="`https://aigis.leadfintech.com:8800/?symbol=${item.code}&interval=1D&description=${item.name}`" target="_blank">
-      <div class="item">
-        <div class="item-top">
-          <span>{{item.name}} ·</span><span>{{item.value[0] | toNumber}}</span>
-        </div>
-        <div class="item-bottom" :class="item.value[1] > 0 ? 'red' : 'green'">
-          <i :class="item.value[1] > 0 ? 'icon-up' : 'icon-down'"></i>
-          <div>
-            <span class="change">{{item.value[1] | toNumber}}</span><span>{{item.value[2] | toPercent}}</span>
-          </div>
+    <div class="item" v-for="(item, index) in scrollData" :key="index" @click="toDetail(item)">
+      <div class="item-top">
+        <span>{{item.name}} ·</span><span>{{item.value[0] | toNumber}}</span>
+      </div>
+      <div class="item-bottom" :class="item.value[6] < 0 ? 'green' : 'red'">
+        <i :class="item.value[6] < 0 ? 'icon-down' : 'icon-up'"></i>
+        <div>
+          <span class="change">{{item.value[7] | toPercent}}</span><span>{{item.value[6] | toNumber}}</span>
         </div>
       </div>
-    </a>
+    </div>
   </div>
 </template>
 
 <script>
+import { toDecimal } from 'common/js/data.js'
+import WebSocketClass from 'api/socket.js'
+
 export default {
   data () {
     return {
-      nameData: [
-        { table_name: 'INDEX_SPX_GI', name: '标普500', code: 'SPX.GI' },
-        { table_name: 'INDEX_IXIC_GI', name: '纳斯达克100', code: 'IXIC.GI' },
-        { table_name: 'INDEX_000001_SH', name: '上证指数', code: '000001.SH' },
-        { table_name: 'COMMODITY_HG00Y_CMX', name: '原油', code: 'CL00Y.NYM' },
-        { table_name: 'COMMODITY_LCPS_LME', name: '黄金', code: 'GC00Y.CMX' },
-        { table_name: 'COMMODITY_CL00Y_NYM', name: '美元指数', code: 'USDX.FX' },
-        { table_name: 'COMMODITY_LLDS_LME', name: '铜', code: 'HG00Y.CMX' }
-      ],
       scrollData: [],
       screenWidth: document.body.clientWidth
     }
@@ -38,15 +30,14 @@ export default {
       return (Math.round(str * 10000) / 100).toFixed(2) + '%'
     },
     toNumber (str) {
-      return Number(str)
+      return toDecimal(str)
     }
   },
   mounted () {
-    const that = this
     window.onresize = () => {
       return (() => {
         window.screenWidth = document.body.clientWidth
-        that.screenWidth = window.screenWidth
+        this.screenWidth = window.screenWidth
       })()
     }
   },
@@ -54,43 +45,59 @@ export default {
     this._getScrollData()
   },
   methods: {
+    toDetail (item) {
+      window.open(`https://aigis.leadfintech.com:8800/?symbol=${item.code}&interval=1D&description=${item.name}`)
+    },
     getConfigResult (res) {
+      let nameData = [
+        { table_name: 'INDEX_SPX_GI', name: '标普500', code: 'SPX.GI' },
+        { table_name: 'INDEX_IXIC_GI', name: '纳斯达克100', code: 'IXIC.GI' },
+        { table_name: 'INDEX_000001_SH', name: '上证指数', code: '000001.SH' },
+        { table_name: 'COMMODITY_CL00Y_NYM', name: '原油', code: 'CL00Y.NYM' },
+        { table_name: 'COMMODITY_GC00Y_CMX', name: '黄金', code: 'GC00Y.CMX' },
+        { table_name: 'COMMODITY_USDX_FX', name: '美元指数', code: 'USDX.FX' },
+        { table_name: 'COMMODITY_HG00Y_CMX', name: '铜', code: 'HG00Y.CMX' }
+      ]
       if (res) {
-        var scrollData = []
-        if (this.screenWidth > 1600) {
-          scrollData = res.data.map((o, i) => {
-            return Object.assign(o, this.nameData[i])
-          })
-          this.scrollData = scrollData.splice(0, 7)
-        } else {
-          scrollData = res.data.map((o, i) => {
-            return Object.assign(o, this.nameData[i])
-          })
-          this.scrollData = scrollData.splice(0, 6)
+        // scrollData = res.data.map((o, i) => {
+        //   return Object.assign(o, this.nameData[i])
+        // })
+        for (let o in res) {
+          nameData[o].value = res[o]
+        }
+        this.scrollData = nameData.splice(0, 7)
+        if (this.screenWidth < 1318) {
+          this.scrollData = this.scrollData.splice(0, 5)
+        } else if (this.screenWidth < 1600) {
+          this.scrollData = this.scrollData.splice(0, 6)
         }
       }
     },
-    requstSocketData (data) {
-      this.socketApi.sendSock(data, this.getConfigResult)
-    },
     _getScrollData () {
-      var agentData = {}
-      agentData.page = 'scroll_page'
-      agentData.data = []
-      this.nameData.forEach(el => {
-        agentData.data.push({
-          table: el.table_name,
-          code: el.code,
-          indicator: ['NOW', 'CHANGE', 'PCTCHANGE']
-        })
-      })
-      this.requstSocketData(agentData)
+      let nameData = [
+        { table_name: 'INDEX_SPX_GI', name: '标普500', code: 'SPX.GI' },
+        { table_name: 'INDEX_IXIC_GI', name: '纳斯达克100', code: 'IXIC.GI' },
+        { table_name: 'INDEX_000001_SH', name: '上证指数', code: '000001.SH' },
+        { table_name: 'COMMODITY_CL00Y_NYM', name: '原油', code: 'CL00Y.NYM' },
+        { table_name: 'COMMODITY_GC00Y_CMX', name: '黄金', code: 'GC00Y.CMX' },
+        { table_name: 'CURRENCY_USDX_FX', name: '美元指数', code: 'USDX.FX' },
+        { table_name: 'COMMODITY_HG00Y_CMX', name: '铜', code: 'HG00Y.CMX' }
+      ]
+      var agentData = []
+      for (let i in nameData) {
+        agentData.push(nameData[i].table_name)
+      }
+      this.socket = new WebSocketClass('scrollmarkets', agentData, this.getConfigResult)
+      this.socket.connect()
     }
   },
   watch: {
     screenWidth (val) {
       this.screenWidth = val
     }
+  },
+  destroyed () {
+    this.socket.closeMyself()
   }
 }
 </script>
@@ -117,6 +124,7 @@ export default {
     .item-top
       display flex
       justify-content space-between
+      color $color-text
     .item-bottom
       display flex
       align-items center

@@ -115,23 +115,6 @@ export default {
         this.$router.push(`/news/${this.newsDetails.article_before.id}`)
       }
     },
-    toggleFavorite () {
-      if (this.userInfo && this.userInfo.length !== 0) {
-        collectArticle({
-          session: this.userInfo.session,
-          articleId: this.$route.params.id
-        }).then(res => {
-          if (res.action === 1) {
-            this.newsDetails.isKeep = 1
-          }
-          if (res.action === 2) {
-            this.newsDetails.isKeep = 0
-          }
-        })
-      } else {
-        this.$refs.confirm.show()
-      }
-    },
     goLogin () {
       this.$router.push('/login')
     },
@@ -162,7 +145,7 @@ export default {
   min-width 600px
   overflow: hidden
   .news-detail-wrapper
-    padding 0 30px
+    padding 0 50px 0 30px
     .detail-header
       .title-box
         font-size: 24px
