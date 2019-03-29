@@ -34,7 +34,7 @@ export function postApi (apiRoute) {
         let errorMessage = '操作频繁，请稍后再试'
         return { data, errorMessage }
       }
-      if (errorCode === ('216' || '211' || '201' || 1)) {
+      if (errorCode === '216' || '211' || '201' || 1) {
         return { data, errorMessage, errorCode }
       }
     }).catch((err) => {
@@ -58,7 +58,7 @@ export function postFileApi (apiRoute) {
         let errorMessage = '操作频繁，请稍后再试'
         return { data, errorMessage }
       }
-      if (errorCode === ('216' || '211' || '201' || 1)) {
+      if (errorCode === '216' || '211' || '201' || 1) {
         return { data, errorMessage, errorCode }
       }
     }).catch((err) => {
@@ -92,7 +92,7 @@ export function postNewsApi (apiRoute) {
         let errorMessage = '操作频繁，请稍后再试'
         return { data, errorMessage }
       }
-      if (errorCode === ('216' || '211' || '201' || 1)) {
+      if (errorCode === '216' || '211' || '201' || 1) {
         return { data, errorMessage, errorCode }
       }
     }).catch((err) => {

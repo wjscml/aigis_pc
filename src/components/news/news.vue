@@ -9,12 +9,12 @@
     </div>
     <div class="news-content" >
       <div class="news-column" v-for="(column, index) in news" :key="index">
-        <router-link :to="`/news/${column.id}`" tag="div" class="col-image" :title="column.title" :style="{backgroundImage: 'url('+column.thumb+')'}"
-         v-show="column.thumb !== 'https://www.cnibd.com/resource/images/newsBg.png' && column.thumb !== 'https://cnibd.oss-cn-beijing.aliyuncs.com/https://www.cnibd.com/resource/images/newsBg.png'"></router-link>
-        <router-link :to="`/news/${column.id}`" tag="div" class="col-image defaultImg" :title="column.title"
-         v-show="column.thumb == 'https://www.cnibd.com/resource/images/newsBg.png' || column.thumb == 'https://cnibd.oss-cn-beijing.aliyuncs.com/https://www.cnibd.com/resource/images/newsBg.png'"></router-link>
+        <div @click="toDetail(column.id)" class="col-image" :title="column.title" :style="{backgroundImage: 'url('+column.thumb+')'}"
+         v-show="column.thumb !== 'https://www.cnibd.com/resource/images/newsBg.png' && column.thumb !== 'https://cnibd.oss-cn-beijing.aliyuncs.com/https://www.cnibd.com/resource/images/newsBg.png'"></div>
+        <div @click="toDetail(column.id)" class="col-image defaultImg" :title="column.title"
+         v-show="column.thumb == 'https://www.cnibd.com/resource/images/newsBg.png' || column.thumb == 'https://cnibd.oss-cn-beijing.aliyuncs.com/https://www.cnibd.com/resource/images/newsBg.png'"></div>
         <div class="col-text">
-          <router-link :to="`/news/${column.id}`" tag="h1" class="title">{{column.title}}</router-link>
+          <h1 @click="toDetail(column.id)" class="title">{{column.title}}</h1>
           <p class="summary">{{column.summary}}</p>
         </div>
         <p class="info">{{column.author_name}} · {{column.publish_time}}</p>
@@ -45,6 +45,9 @@ export default {
     this._getNewsList(0)
   },
   methods: {
+    toDetail (id) {
+      window.open(`${this.$route.path}/news/${id}`, '_blank')
+    },
     getNewsNav () {
       getCategories().then(res => {
         this.newsNav = []

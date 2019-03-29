@@ -57,18 +57,17 @@ export default {
       'saveStickNumber'
     ]),
     goDetail (column) {
-      window.open(`https://aigis.leadfintech.com:8800/?symbol=${column.indicator_code}&interval=1D&description=${column.table_name}`)
+      window.open(`/market/site?symbol=${column.indicator_code}&interval=1D&description=${column.indicator_name}`)
     },
     unstick (i) {
       this.toggleLayer(i)
       this.saveStickNumber(0)
-      // this.$router.go(0)
+      this.$router.go(0)
     },
     stick (i) {
       this.toggleLayer(i)
       this.saveStickNumber(this.charts[i].indicator_id)
-      this.getData()
-      // this.$router.go(0)
+      this.$router.go(0)
     },
     _getDaysData (data) {
       let daysData = []
@@ -97,6 +96,7 @@ export default {
       }
       setTimeout(() => {
         this.charts = daysData
+        console.log(this.charts)
       }, 500)
     },
     getData () {

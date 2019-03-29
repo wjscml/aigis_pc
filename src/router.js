@@ -40,7 +40,7 @@ export default new Router({
           component: () => import('./pages/algorithm-detail/algorithm-detail.vue')
         },
         {
-          path: '/news/:id',
+          path: '/index/news/:id',
           name: 'newsDetail',
           component: () => import('./pages/news-detail/news-detail.vue')
         },
@@ -66,7 +66,7 @@ export default new Router({
           }
         },
         {
-          path: '/marketDetail',
+          path: '/market/site',
           name: 'marketDetail',
           component: () => import('./pages/marketDetail/marketDetail.vue')
         },

@@ -1,6 +1,6 @@
 <template>
 <div class="login-wrapper">
-  <div class="tips-wrapper" v-show="registerTips" ref="tipsWrapper" :class="{'correct': isCorrect}">
+  <div class="tips-wrapper" v-if="registerTips" ref="tipsWrapper" :class="{'correct': isCorrect}">
     <p class="tips">{{registerTips}}</p>
   </div>
   <div class="input-wrapper" :class="{'error': errors.has('username')}">
@@ -70,8 +70,8 @@ export default {
       this.$emit('loginMob')
     },
     register () {
+      this.registerTips = ''
       this.$validator.validate().then(res => {
-        this.registerTips = ''
         if (res) {
           this.toRegister()
         }

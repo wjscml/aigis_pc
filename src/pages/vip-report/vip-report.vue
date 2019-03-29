@@ -7,7 +7,11 @@
     <div v-show="specialList.length">
       <load-more @loadMore="loadmore" :tips="tips" :isLoad="isLoad"></load-more>
     </div>
-    <loading v-if="!specialList.length"></loading>
+    <loading v-show="pageLoading"></loading>
+    <div class="vip-report-no-result" v-if="!specialList.length && !pageLoading">
+      <no-result :tips="resultTips" ></no-result>
+    </div>
+
   </div>
 </template>
 
@@ -16,6 +20,7 @@ import ReportColumn from 'components/report-column/report-column'
 import RowNav from 'base/row-nav/row-nav'
 import LoadMore from 'base/load-more/load-more'
 import Loading from 'base/loading/loading'
+import NoResult from 'base/no-result/no-result'
 import { getSpecialList } from 'api'
 import { mapGetters } from 'vuex'
 import { extend } from 'common/js/data'
@@ -27,6 +32,8 @@ export default {
       specialList: [],
       timeKey: [],
       tips: '点击加载更多',
+      resultTips: '暂无报告~',
+      pageLoading: true,
       reportNav: [],
       isLoad: null,
       page: 0
@@ -42,21 +49,20 @@ export default {
   },
   methods: {
     _getSpecialList () {
+      this.pageLoading = true
       getSpecialList({
         session: this.userInfo.session,
         page: 0,
         limit: COUNT
       }).then((res) => {
-        if (res) {
+        this.pageLoading = false
+        if (res.length !== 0) {
           this.sourceRes = res
           this.timeKey = Object.keys(res)
           for (let i in res) {
             this.specialList.push(res[i])
           }
           this.tips = '点击加载更多'
-        } else {
-          this.specialList = []
-          this.tips = '暂无数据'
         }
       })
     },
@@ -70,6 +76,7 @@ export default {
         limit: COUNT
       }).then(res => {
         this.isLoad = false
+        console.log(res)
         if (res.length !== 0) {
           this.sourceRes = extend(this.sourceRes, res)
           this.timeKey = Object.keys(this.sourceRes)
@@ -88,7 +95,8 @@ export default {
     ReportColumn,
     RowNav,
     LoadMore,
-    Loading
+    Loading,
+    NoResult
   }
 }
 </script>
@@ -122,6 +130,8 @@ export default {
             padding-left 0
             width 100%
             -webkit-line-clamp: 3
+  .vip-report-no-result
+    margin-top 100px
   @media screen and (max-width: 1048px)
     .report-column
       .report-column-main

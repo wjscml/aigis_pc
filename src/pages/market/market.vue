@@ -23,7 +23,7 @@
           </div>
           <div class="column" v-for="(item, itemIndex) in column" :key="item.id">
             <span class="item name">
-              <a :href="`https://aigis.leadfintech.com:8800/?symbol=${item.code}&interval=1D&description=${item.name}`" target="_blank" class="name-z">{{item.name}}</a><br>{{item.code}}
+              <a @click="toDetail(item)" class="name-z">{{item.name}}</a><br>{{item.code}}
             </span>
             <span class="item price">{{item.value[0] | toNumber}}</span>
             <span class="item changePer" :class="item.value[6] > 0 ? 'red' : (item.value[6] == 0 ? '' : 'green')">{{item.value[7] | toPercent}}</span>
@@ -87,6 +87,9 @@ export default {
 
   },
   methods: {
+    toDetail (item) {
+      window.open(`/market/site?symbol=${item.code}&interval=1D&description=${item.name}`, '_blank')
+    },
     toggleFavor (item, index, n) {
       addFavorIndicator({
         indicatorId: this.marketsData[this.type][index].id,

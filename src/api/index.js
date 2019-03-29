@@ -9,11 +9,6 @@ const getIndicators = postApi('indicator.getIndicators')
 const addFavorIndicator = postApi('indicator.addFavorIndicator')
 const getFavorIndicatorList = postApi('indicator.getFavorIndicatorList')
 
-const getDigiccyScroll = postApi('web.getDataCoinSlide')
-const getDigiccyList = postApi('web.getCoinList')
-
-const getRecommend = postApi('web.getSpecialRecommend')
-const getHot = postApi('web.getTop10')
 const getCategories = postNewsApi('article.categories')
 const getNewsList = postNewsApi('article.getList')
 const getNewsDetail = postNewsApi('article.getDetail')
@@ -27,9 +22,11 @@ const getValueList = postApi('assetmanagement.getList')
 
 const getHistoryChartData = postApi('quantification.tradingview')
 const getDaysData = postApi('quantification.getDaysData')
+const getPeriodData = postApi('quantification.getPeriodData')
 
-const getColumnist = postApi('user.getAuthorList')
-const getColumnistAuthor = postApi('user.authorPublish')
+const getHistory = postApi('quantification.tradingview')
+const getSearch = postApi('quantification.tradingsearch')
+const getRefresh = postApi('quantification.tradingRefresh')
 
 const getSearchList = postApi('article.getSearchList')
 
@@ -45,11 +42,6 @@ export {
   addFavorIndicator,
   getFavorIndicatorList,
 
-  getDigiccyScroll,
-  getDigiccyList,
-
-  getRecommend,
-  getHot,
   getCategories,
   getNomalList,
   getSpecialList,
@@ -63,8 +55,11 @@ export {
 
   getNewsList,
   getNewsDetail,
-  getColumnist,
-  getColumnistAuthor,
+  getPeriodData,
+
+  getHistory,
+  getSearch,
+  getRefresh,
 
   getSearchList,
 

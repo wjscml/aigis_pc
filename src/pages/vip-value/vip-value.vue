@@ -18,7 +18,10 @@
         </div>
       </div>
     </div>
-    <loading v-if="!valueList.length"></loading>
+    <loading v-show="pageLoading"></loading>
+    <div class="vip-value-no-result" v-if="!valueList.length && !pageLoading">
+      <no-result :tips="resultTips" ></no-result>
+    </div>
   </div>
 </template>
 
@@ -26,6 +29,7 @@
 import RowNav from 'base/row-nav/row-nav'
 import Chart from 'base/chart/chart'
 import Loading from 'base/loading/loading'
+import NoResult from 'base/no-result/no-result'
 import { mapGetters } from 'vuex'
 import { getValueList } from 'api'
 import { formatDate, formatNumber } from 'common/js/data.js'
@@ -44,7 +48,9 @@ export default {
         { time: '近3年' }
       ],
       valueList: {},
-      valueInfo: []
+      valueInfo: [],
+      pageLoading: true,
+      resultTips: '您还没有委托资产~'
     }
   },
   computed: {
@@ -65,53 +71,57 @@ export default {
       this._getValueData(i)
     },
     _getValueData (type) {
+      this.pageLoading = true
       getValueList({
         session: this.userInfo.session
       }).then(res => {
-        // nav
-        this.valueNav = []
-        for (let i in res) {
-          this.valueNav.push(res[i].indicator_name)
-        }
-        // charts
-        this.valueList = []
-        let valueList = res[type]
-        valueList.nets.forEach(el => {
-          el.time = formatDate(el.notice_time * 1000)
-          el.净值 = Number(el.now_nav)
-        })
-        this.$nextTick(() => {
-          this.valueList.push(valueList)
-        })
-        // info
-        this.valueInfo = []
-        let valueInfo = res[type]
-        this.valueInfo = [
-          {
-            name: '日涨跌幅',
-            value: this.toPercent(valueInfo.nets[0].pct_change)
-          },
-          {
-            name: '基金净值',
-            value: Number(valueInfo.nets[0].now_nav)
-          },
-          {
-            name: '总资产',
-            value: formatNumber(valueInfo.trust_amount + valueInfo.interest_amount)
-          },
-          {
-            name: '委托资金',
-            value: formatNumber(valueInfo.trust_amount)
-          },
-          {
-            name: '累计收益率',
-            value: this.toPercent(valueInfo.average_interest_rate)
-          },
-          {
-            name: '年化收益',
-            value: '10.18%'
+        this.pageLoading = false
+        if (res.length !== 0) {
+          // nav
+          this.valueNav = []
+          for (let i in res) {
+            this.valueNav.push(res[i].indicator_name)
           }
-        ]
+          // charts
+          this.valueList = []
+          let valueList = res[type]
+          valueList.nets.forEach(el => {
+            el.time = formatDate(el.notice_time * 1000)
+            el.净值 = Number(el.now_nav)
+          })
+          this.$nextTick(() => {
+            this.valueList.push(valueList)
+          })
+          // info
+          this.valueInfo = []
+          let valueInfo = res[type]
+          this.valueInfo = [
+            {
+              name: '日涨跌幅',
+              value: this.toPercent(valueInfo.nets[0].pct_change)
+            },
+            {
+              name: '基金净值',
+              value: Number(valueInfo.nets[0].now_nav)
+            },
+            {
+              name: '总资产',
+              value: formatNumber(valueInfo.trust_amount + valueInfo.interest_amount)
+            },
+            {
+              name: '委托资金',
+              value: formatNumber(valueInfo.trust_amount)
+            },
+            {
+              name: '累计收益率',
+              value: this.toPercent(valueInfo.average_interest_rate)
+            },
+            {
+              name: '年化收益',
+              value: '10.18%'
+            }
+          ]
+        }
       })
     },
     toPercent (str) {
@@ -121,7 +131,8 @@ export default {
   components: {
     RowNav,
     Chart,
-    Loading
+    Loading,
+    NoResult
   }
 }
 </script>
@@ -175,4 +186,6 @@ export default {
         &:nth-child(2),&:nth-child(4)
           .red,.green
             color $color-white
+  .vip-value-no-result
+    margin-top 100px
 </style>

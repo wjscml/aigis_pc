@@ -46,7 +46,7 @@ export default {
   },
   methods: {
     toDetail (item) {
-      window.open(`https://aigis.leadfintech.com:8800/?symbol=${item.code}&interval=1D&description=${item.name}`)
+      window.open(`/market/site?symbol=${item.code}&interval=1D&description=${item.name}`)
     },
     getConfigResult (res) {
       let nameData = [

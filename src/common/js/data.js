@@ -11,6 +11,18 @@ export function formatDate (timestamp) {
   return y + '/' + m + '/' + d
 }
 
+export function getCurrentTime (timestamp) {
+  var date = new Date(timestamp)
+  var y = date.getFullYear()
+  var m = date.getMonth() + 1
+  var d = date.getDate()
+  var hh = date.getHours()
+  var mm = date.getMinutes()
+  var ss = date.getTime() % 60000
+  ss = (ss - (ss % 1000)) / 1000
+  return y + '/' + m + '/' + d + ' ' + (hh < 10 ? '0' + hh : hh) + ':' + (mm < 10 ? '0' + mm : mm) + ':' + (ss < 10 ? '0' + ss : ss)
+}
+
 export function unique (arr) { // 数组去重
   var res = []
   var json = {}

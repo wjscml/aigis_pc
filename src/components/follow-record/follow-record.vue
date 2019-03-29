@@ -36,7 +36,7 @@
 
 <script>
 import LoadingSmall from 'base/loading/loading-small'
-import { toDecimal } from 'common/js/data'
+import { toDecimal, getCurrentTime } from 'common/js/data'
 
 export default {
   props: {
@@ -53,7 +53,7 @@ export default {
       return str.replace(/00$/, '')
     },
     getLocalTime (nS) {
-      return new Date(parseInt(nS) * 1000).toLocaleString().replace(/:\d{1,2}$/, '')
+      return getCurrentTime(nS * 1000)
     }
   },
   components: {
