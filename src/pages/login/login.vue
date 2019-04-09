@@ -23,6 +23,7 @@ import LoginForget from 'components/login-forget/login-forget.vue'
 import { mapGetters } from 'vuex'
 
 export default {
+  name: 'login',
   data () {
     return {
       loginType: 0,
@@ -180,6 +181,7 @@ export default {
 </script>
 
 <style lang="stylus">
+@import "~common/stylus/variable"
 .flex-container
   position fixed
   top 0
@@ -258,7 +260,7 @@ export default {
         .common-error-tips
           position absolute
           left 30px
-          bottom -18px
+          bottom -24px
           color $color-red
         .imgCode
           cursor pointer

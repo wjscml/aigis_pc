@@ -10,7 +10,7 @@ class WebSocketClass {
     // 新建 WebSocket 实例
     const wsuri = 'wss://aigis.leadfintech.com/wss'
     this.ws = new WebSocket(wsuri)
-    this.ws.onopen = e => {
+    this.ws.onopen = () => {
       // 连接ws成功回调
       this.status = 'open'
       // console.log(`${this.name}连接成功`, e)
@@ -61,7 +61,7 @@ class WebSocketClass {
     // console.log(`${this.name}发送消息给服务器:`, data)
     return this.ws.send(data)
   }
-  closeHandle (e = 'err') {
+  closeHandle () {
     // 因为webSocket并不稳定，规定只能手动关闭(调closeMyself方法)，否则就重连
     if (this.status !== 'close') {
       // console.log(`${this.name}断开，重连websocket`, e)

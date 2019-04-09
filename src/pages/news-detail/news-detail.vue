@@ -140,6 +140,7 @@ export default {
 </script>
 
 <style lang="stylus">
+@import "~common/stylus/variable"
 .news-detail
   width 100%
   min-width 600px

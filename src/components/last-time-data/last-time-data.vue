@@ -54,6 +54,7 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
+@import "~common/stylus/variable"
 .last-time-data
   flex 1
   padding 24px
@@ -61,6 +62,7 @@ export default {
   background-color $color-light-background
   .title
     margin-bottom 30px
+    font-size 15px
     color $color-white
   .content
     display flex

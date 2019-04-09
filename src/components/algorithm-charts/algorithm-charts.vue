@@ -99,6 +99,7 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
+@import "~common/stylus/variable"
 .charts-wrapper
   display flex
   flex-wrap: wrap

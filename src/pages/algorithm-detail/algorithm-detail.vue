@@ -289,6 +289,7 @@ export default {
 </script>
 
 <style lang="stylus">
+@import "~common/stylus/variable"
 .algorithm-detail
   .top-container
     display flex
@@ -325,7 +326,6 @@ export default {
             margin-top 14px
           .value
             font-size 24px
-
     .style
       flex 1
       padding 20px 24px
@@ -333,6 +333,7 @@ export default {
       border-radius 10px
       .title
         color $color-white
+        font-size 15px
   .chart-container
     padding 40px 30px
     border-radius 10px

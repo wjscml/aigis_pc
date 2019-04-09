@@ -96,7 +96,6 @@ export default {
       }
       setTimeout(() => {
         this.charts = daysData
-        console.log(this.charts)
       }, 500)
     },
     getData () {
@@ -135,6 +134,7 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
+@import "~common/stylus/variable"
 .charts-wrapper
   .charts-column
     min-width 292px

@@ -259,13 +259,10 @@ export default {
       timezone:"Asia/Shanghai",
       loading_screen: { backgroundColor: '#171633' },
       disabled_features: [
-        'use_localstorage_for_settings',
+        'header_widget_dom_node',
         'header_compare',
         'header_undo_redo',
-        'header_saveload',
-        'scales_context_menu',
-        'legend_context_menu',
-        'header_interval_dialog_button'
+        'go_to_date'
       ],
       enabled_features: [
         'keep_left_toolbar_visible_on_small_screens',
@@ -289,18 +286,20 @@ export default {
         'mainSeriesProperties.candleStyle.downColor': 'rgba( 9, 187, 7, 1)',
         'mainSeriesProperties.candleStyle.wickUpColor': 'rgba( 230, 67, 64, 1)',
         'mainSeriesProperties.candleStyle.wickDownColor': 'rgba( 9, 187, 7, 1)',
-        'mainSeriesProperties.candleStyle.drawBorder': false,
+        'mainSeriesProperties.candleStyle.borderUpColor': 'rgba( 230, 67, 64, 1)',
+        'mainSeriesProperties.candleStyle.borderDownColor': 'rgba( 9, 187, 7, 1)',
         //    空心K线图样式
         'mainSeriesProperties.hollowCandleStyle.upColor': 'rgba( 230, 67, 64, 1)',
         'mainSeriesProperties.hollowCandleStyle.downColor': 'rgba( 9, 187, 7, 1)',
         'mainSeriesProperties.hollowCandleStyle.wickUpColor': 'rgba( 230, 67, 64, 1)',
         'mainSeriesProperties.hollowCandleStyle.wickDownColor': 'rgba( 9, 187, 7, 1)',
-        'mainSeriesProperties.hollowCandleStyle.drawBorder': false,
+        'mainSeriesProperties.hollowCandleStyle.borderUpColor': 'rgba( 230, 67, 64, 1)',
+        'mainSeriesProperties.hollowCandleStyle.borderDownColor': 'rgba( 9, 187, 7, 1)',
         //    美国线样式
         'mainSeriesProperties.barStyle.upColor': 'rgba( 230, 67, 64, 1)',
         'mainSeriesProperties.barStyle.downColor': 'rgba( 9, 187, 7, 1)',
         //    线形图样式
-        'mainSeriesProperties.lineStyle.color': 'rgba(37, 97, 239, 1)',
+        'mainSeriesProperties.lineStyle.color': 'rgba(6, 238, 254, 1)',
         'mainSeriesProperties.lineStyle.linewidth': 2,
         //    面积图样式
         'mainSeriesProperties.areaStyle.color1': 'rgba(37, 97, 239, 0.1)',

@@ -8,11 +8,14 @@ export default {
   name: 'app',
   data () {
     return {
-      isIndex: null
+      isIndex: {
+        type: Boolean,
+        default: null
+      }
     }
   },
   watch: {
-    '$route' (to, from) {
+    '$route' (to) {
       if (to.name === 'index') {
         this.isIndex = true
       } else {
@@ -23,6 +26,7 @@ export default {
 }
 </script>
 <style lang="stylus">
+@import 'common/stylus/index.styl'
 #app
   font-family 'Avenir', Helvetica, Arial, sans-serif
   -webkit-font-smoothing antialiased

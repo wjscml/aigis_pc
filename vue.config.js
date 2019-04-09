@@ -34,29 +34,10 @@ module.exports = {
   chainWebpack: config => {
     path.resolve('config')
     config.resolve.alias
-      .set('pages', resolve('src/pages'))
       .set('components', resolve('src/components'))
       .set('common', resolve('src/common'))
       .set('base', resolve('src/base'))
       .set('api', resolve('src/api'))
       .set('src', resolve('src'))
-  },
-
-  css: {
-    loaderOptions: {
-      stylus: {
-        'resolve url': true,
-        'import': [
-          './src/theme'
-        ]
-      }
-    }
-  },
-
-  pluginOptions: {
-    'cube-ui': {
-      postCompile: true,
-      theme: true
-    }
   }
 }

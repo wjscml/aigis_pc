@@ -27,7 +27,7 @@
       </div>
     </div>
     <div class="nav-wrapper">
-      <router-link class="nav" active-class="nav-s" :to="item.url" v-for="(item, index) in nav" :key="index">
+      <router-link tag="div" class="nav" active-class="nav-s" :to="item.url" v-for="(item, index) in nav" :key="index">
         <div class="navBtn">
           <i :class="`icon icon-${item.name}`"></i>
           <span class="title">{{item.title}}</span>
@@ -73,6 +73,11 @@ export default {
           url: '/market'
         },
         {
+          name: 'vip_qusetion',
+          title: '留言板',
+          url: '/vip_qusetion'
+        },
+        {
           name: 'vip_report',
           title: '专享报告',
           url: '/vip_report'
@@ -115,9 +120,6 @@ export default {
     }
   },
   methods: {
-    ...mapActions([
-      'saveUserInfo'
-    ]),
     logout () {
       this.saveUserInfo()
       this.$router.push({ path: '/login' })
@@ -127,9 +129,12 @@ export default {
         this.$refs.confirm.show()
       }
     },
-    onQueryChange (newQuery, oldQuery) {
+    onQueryChange (newQuery) {
       this.query = newQuery
-    }
+    },
+    ...mapActions([
+      'saveUserInfo'
+    ])
   },
   components: {
     SearchBox,
@@ -143,7 +148,6 @@ export default {
 .aigis
   width 100%
   height 100%
-
   .top-wrapper
     .top-content
       display flex
@@ -218,6 +222,7 @@ export default {
     min-width 155px
     background-color $color-background
     .nav
+      cursor pointer
       display block
       margin-top 12px
       &:nth-child(5):before

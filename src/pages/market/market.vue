@@ -197,6 +197,7 @@ export default {
 </script>
 
 <style lang="stylus">
+@import "~common/stylus/variable"
 .market
   margin 0 30px 30px 0
   min-width 680px

@@ -26,6 +26,7 @@ export default {
 </script>
 
 <style lang="stylus">
+@import "~common/stylus/variable"
   .news-more
     display flex
     align-items center

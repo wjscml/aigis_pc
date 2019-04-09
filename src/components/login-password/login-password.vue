@@ -1,7 +1,7 @@
 <template>
 <div class="login-wrapper">
-  <div class="tips-wrapper" v-if="loginTips.length" ref="tipsWrapper" :class="{'correct': isCorrect}">
-    <p class="tips">{{loginTips[0]}}</p>
+  <div class="tips-wrapper" v-show="loginTips" ref="tipsWrapper" :class="{'correct': isCorrect}">
+    <p class="tips">{{loginTips}}</p>
   </div>
   <div class="input-wrapper" :class="{'error': errors.has('username')}">
     <input v-model="tel" v-validate="'required|numeric|length:11'" name="username" type="text" placeholder="手机号">
@@ -28,7 +28,7 @@ export default {
     return {
       tel: '',
       password: '',
-      loginTips: [],
+      loginTips: '',
       isCorrect: ''
     }
   },
@@ -43,8 +43,8 @@ export default {
       this.$emit('forget')
     },
     login () {
-      this.loginTips = []
       this.$validator.validateAll().then(res => {
+        this.loginTips = ''
         if (res) {
           let loginParam = {
             mobileNumber: this.tel,
@@ -52,14 +52,14 @@ export default {
           }
           getLogin(loginParam).then(res => {
             if (res.errorMessage === '') {
+              res.data.tel = this.tel
               this.saveUserInfo(res.data)
               this.isCorrect = true
-              this.loginTips.push('成功登录！')
+              this.loginTips = '成功登录！'
               this.$router.push({ path: '/index' })
             } else {
               this.isCorrect = false
-              this.loginTips.push(res.errorMessage)
-              console.log(this.loginTips)
+              this.loginTips = res.errorMessage
             }
           })
         }

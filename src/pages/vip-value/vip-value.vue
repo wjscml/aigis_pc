@@ -138,6 +138,7 @@ export default {
 </script>
 
 <style lang="stylus">
+@import "~common/stylus/variable"
 .vip-value-wrapper
   margin 0 30px 30px 0
   min-width 774px

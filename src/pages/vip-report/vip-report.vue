@@ -102,6 +102,7 @@ export default {
 </script>
 
 <style lang="stylus">
+@import "~common/stylus/variable"
 .vip-report-wrapper
   .vip-report-nav
     margin-right 30px

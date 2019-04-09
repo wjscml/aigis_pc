@@ -37,14 +37,13 @@
 
 <script>
 import { getMobileCode, getCaptcha, getForget } from 'api'
-import { mapActions } from 'vuex'
+import { mapGetters, mapActions } from 'vuex'
 
 const TIME_COUNT = 60
 export default {
   data () {
     return {
       registerTips: '',
-      tel: '',
       code: '',
       mobileCode: '',
       password: '',
@@ -55,6 +54,14 @@ export default {
       sendText: '发送验证码',
       count: ''
     }
+  },
+  computed: {
+    tel () {
+      return this.userInfo.tel
+    },
+    ...mapGetters([
+      'userInfo'
+    ])
   },
   created () {
     this.getCode()
@@ -73,27 +80,24 @@ export default {
       this.$validator.validate().then(res => {
         this.registerTips = ''
         if (res) {
-          this.toRegister()
-        }
-      })
-    },
-    toRegister () {
-      let registerParam = {
-        captchaCodeKey: this.captchaCodeKey,
-        captchaCode: this.code,
-        mobileNumber: this.tel,
-        mobileCode: this.mobileCode,
-        password: this.password
-      }
-      getForget(registerParam).then(res => {
-        if (!res.errorMessage) {
-          this.saveUserInfo(res)
-          this.isCorrect = true
-          this.registerTips = '密码修改成功！'
-          this.$router.push({ path: '/index' })
-        } else {
-          this.registerTips = res.errorMessage
-          this.isCorrect = false
+          let registerParam = {
+            captchaCodeKey: this.captchaCodeKey,
+            captchaCode: this.code,
+            mobileNumber: this.tel,
+            mobileCode: this.mobileCode,
+            password: this.password
+          }
+          getForget(registerParam).then(res => {
+            if (!res.errorMessage) {
+              this.saveUserInfo(res)
+              this.isCorrect = true
+              this.registerTips = '密码修改成功！'
+              this.$router.push({ path: '/index' })
+            } else {
+              this.registerTips = res.errorMessage
+              this.isCorrect = false
+            }
+          })
         }
       })
     },
@@ -151,6 +155,7 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
+@import "~common/stylus/variable"
 .login-wrapper
   position relative
   margin 50px 25% 0 25%
@@ -189,7 +194,7 @@ export default {
     .common-error-tips
       position absolute
       left 30px
-      bottom -18px
+      bottom -24px
       color $color-red
     .imgCode
       cursor pointer

@@ -63,6 +63,7 @@ export default {
 </script>
 
 <style lang="stylus" scoped>
+@import "~common/stylus/variable"
 .record
   margin-right 26px
   flex 2
@@ -71,6 +72,7 @@ export default {
     align-items center
     height 24px
     margin-bottom 12px
+    font-size 15px
     .icon-record
       margin 0 8px
       font-size 16px

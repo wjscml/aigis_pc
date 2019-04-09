@@ -57,6 +57,7 @@ export default {
 </script>
 
 <style lang="stylus">
+@import "~common/stylus/variable"
 .report-column-content
   .report-column-time
     display flex

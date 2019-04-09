@@ -71,6 +71,14 @@ export default new Router({
           component: () => import('./pages/marketDetail/marketDetail.vue')
         },
         {
+          path: '/vip_qusetion',
+          name: 'vipQusetion',
+          component: () => import('./pages/vip-qusetion/vip-qusetion.vue'),
+          meta: {
+            title: '问题解答 - Aigis - 埃癸斯风险控制系统'
+          }
+        },
+        {
           path: '/vip_report',
           name: 'vipReport',
           component: () => import('./pages/vip-report/vip-report.vue'),

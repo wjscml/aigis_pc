@@ -1,12 +1,10 @@
 import Vue from 'vue'
-import './cube-ui'
 import App from './App.vue'
 import router from './router'
 import store from './store'
 import VeeValidate, { Validator } from 'vee-validate'
-import { dict } from 'common/js/messages.js'
-
-import 'common/stylus/index.styl'
+import { dict } from './common/js/messages.js'
+import "babel-polyfill"
 
 Vue.config.productionTip = false
 
@@ -21,6 +19,6 @@ new Vue({
   render: h => h(App)
 }).$mount('#app')
 
-router.afterEach((to, from, next) => {
+router.afterEach(() => {
   window.scrollTo(0, 0)
 })

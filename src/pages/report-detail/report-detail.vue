@@ -71,6 +71,7 @@ export default {
 </script>
 
 <style lang="stylus">
+@import "~common/stylus/variable"
 .report-detail-wrapper
   padding 0 30px
   min-width 620px

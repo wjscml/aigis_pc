@@ -59,6 +59,7 @@ export default {
 </script>
 
 <style scoped lang="stylus">
+@import "~common/stylus/variable"
 .confirm
   position fixed
   left 0
