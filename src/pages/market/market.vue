@@ -150,7 +150,8 @@ export default {
           this.nameData = nameData
           this.sendSocketData()
         } else {
-          this.subNavData = nameData.exchange
+          let addTypeAll = [{ exchange_code: "全部" }]
+          this.subNavData = addTypeAll.concat(nameData.exchange)
           for (let i in nameData.indicators) {
             nameData.indicators[i].indicator_id = nameData.indicators[i].id
           }
@@ -163,6 +164,7 @@ export default {
               }
             }
           }
+          exchangeNameData.unshift(nameData.indicators)
           this.nameData = exchangeNameData[this.subType]
           this.sendSocketData()
         }
@@ -218,7 +220,7 @@ export default {
 @import "~common/stylus/variable"
 .market
   margin 0 30px 30px 0
-  min-width 680px
+  min-width 780px
   .market-nav
     display flex
     justify-content center
