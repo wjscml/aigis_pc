@@ -10,7 +10,7 @@
       <login-password v-if="loginType==0" @change="changeType" @forget="toForget"></login-password>
       <login-mobilecode v-if="loginType==1" @change="changeType" @forget="toForget"></login-mobilecode>
       <login-forget v-if="loginType==2" @loginPsw="loginPsw" @loginMob="loginMob"></login-forget>
-      <p class="copyright">©2018 Alaya.ai   鲁ICP备13045831号</p>
+      <p class="copyright">©2018 aigis.leadfintech   京ICP备12019798号</p>
     </div>
 
   </div>

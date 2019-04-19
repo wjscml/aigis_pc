@@ -94,11 +94,11 @@ export default {
         font-size 1.5rem
         .operate-btn
           flex 1
-          color $color-text
+          color $color-blue
           cursor pointer
           &:first-child
             border-right 1px solid rgba(7,17,27,0.1)
-            color $color-blue
+            color #999
 @keyframes confirm-fadein
   0%
     opacity 0

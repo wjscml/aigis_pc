@@ -3,44 +3,9 @@
     <div class="market-nav" v-show="marketNav.length">
       <row-nav :nav="marketNav" @change="change"></row-nav>
     </div>
-    <div class="market-wrapper" v-show="marketsData.length">
-      <div v-for="(column, index) in marketsData" :key="index">
-        <div class="subNav" v-if="false">
-          <div class="subNavItem" v-for="(item, index) in subNav" :key="index" :class="{'subNavItem-s':index===type}" @click="subChange(index)">
-            <span>{{item}}</span>
-          </div>
-        </div>
-        <div class="content" v-show="index==type && column.length !== 0">
-          <div class="column">
-            <span class="item name">资产</span>
-            <span class="item price">最新价</span>
-            <span class="item changePer red">涨跌幅</span>
-            <span class="item change green">涨跌额</span>
-            <span class="item high">最高价</span>
-            <span class="item low">最低价</span>
-            <span class="item open">开盘价</span>
-            <span class="item add">7</span>
-          </div>
-          <div class="column" v-for="(item, itemIndex) in column" :key="item.id">
-            <span class="item name">
-              <a @click="toDetail(item)" class="name-z">{{item.name}}</a><br>{{item.code}}
-            </span>
-            <span class="item price">{{item.value[0] | toNumber}}</span>
-            <span class="item changePer" :class="item.value[6] > 0 ? 'red' : (item.value[6] == 0 ? '' : 'green')">{{item.value[7] | toPercent}}</span>
-
-            <span class="item change" :class="item.value[6] > 0 ? 'red' : (item.value[6] == 0 ? '' : 'green')">{{item.value[6] | toNumber}}</span>
-
-            <span class="item high">{{item.value[1] | toNumber}}</span>
-            <span class="item low">{{item.value[2] | toNumber}}</span>
-            <span class="item open">{{item.value[3] | toNumber}}</span>
-            <div class="item add" @click="addFavor(item, itemIndex)" v-show="item.status !== 1"><span>加自选</span></div>
-            <div class="item delete" @click="showConfirm(item, itemIndex)" v-show="item.status == 1"><span>删自选</span></div>
-          </div>
-        </div>
-        <no-result tips="您还没有自选行情~" v-show="index==type && column.length == 0"></no-result>
-      </div>
-    </div>
-    <loading v-if="!marketsData.length"></loading>
+    <market-column @change="subNavChange" @addFavor="addFavor" @showConfirm="showConfirm" :data="notipsData" :type="subType" :subNavData="subNavData" ref="marketColumn"></market-column>
+    <loading v-show="isLoading"></loading>
+    <no-result tips="您还没有自选行情~" v-show="isNoResult"></no-result>
     <confirm @confirm="deleteFavor" :text="confirmText" ref="confirm"></confirm>
   </div>
 </template>
@@ -50,9 +15,9 @@ import NoResult from 'base/no-result/no-result'
 import Confirm from 'components/confirm/confirm'
 import RowNav from 'base/row-nav/row-nav'
 import Loading from 'base/loading/loading'
+import MarketColumn from 'components/market-column/market-column'
 import { getIndicators, addFavorIndicator, getFavorIndicatorList } from 'api'
 import { addClass, removeClass } from 'common/js/dom.js'
-import { toDecimal } from 'common/js/data.js'
 import { mapGetters } from 'vuex'
 import WebSocketClass from 'api/socket.js'
 
@@ -60,19 +25,15 @@ export default {
   data () {
     return {
       type: 0,
-      marketsData: {},
+      subType: 0,
       marketNav: [],
-      subNav: [],
+      subNavData: [],
       nameData: [],
-      confirmText: ''
-    }
-  },
-  filters: {
-    toPercent (str) {
-      return (Math.round(str * 10000) / 100).toFixed(2) + '%'
-    },
-    toNumber (str) {
-      return toDecimal(str)
+      notipsData: [],
+      isFirst: true,
+      confirmText: '',
+      isNoResult: null,
+      isLoading: true
     }
   },
   computed: {
@@ -83,111 +44,168 @@ export default {
   created () {
     this._getIndicators()
   },
-  mounted () {
-
-  },
   methods: {
-    toDetail (item) {
-      window.open(`https://aigis.leadfintech.com:8800/?symbol=${item.code}&interval=1D&description=${item.name}`, '_blank')
-    },
-    toggleFavor (item, index, n) {
+    toggleFavor (item, n) {
       addFavorIndicator({
-        indicatorId: this.marketsData[this.type][index].id,
+        indicatorId: item.id,
         session: this.userInfo.session,
         action: n
       }).then(res => {
-        item.status = res.status
+        item.favor = res.favor
+        this.socket.closeMyself()
+        this.isFirst = true
+        this._getIndicators()
       })
     },
-    addFavor (item, index) {
-      this.toggleFavor(item, index, 1)
+    addFavor (item) {
+      this.toggleFavor(item, 1)
     },
     deleteFavor () {
-      this.toggleFavor(this.item, this.i, 2)
+      this.toggleFavor(this.item, 2)
     },
-    showConfirm (item, index) {
+    showConfirm (item) {
       this.item = item
-      this.i = index
       this.confirmText = `是否不再关注 "${item.name}"`
       this.$refs.confirm.show()
     },
     getConfigResult (res) {
-      var that = this
-      for (let o in res) {
-        that.nameData[o].value = res[o]
-      }
-      let start = 0
-      let end = 0
-      that.marketsData = []
-      for (let i in that.marketsLength) {
-        if (i < 1) {
-          start = 0
-          end = that.marketsLength[0]
+      this.isLoading = false
+      if (res.length) {
+        let valueData = res
+        if (this.isFirst) {
+          this.isFirst = !this.isFirst
+          for (let n in this.nameData) {
+            this.notipsData.push({
+              name: this.nameData[n].indicator_name,
+              code: this.nameData[n].indicator_code,
+              id: this.nameData[n].indicator_id,
+              favor: this.nameData[n].favor,
+              value: valueData[n]
+            })
+          }
         } else {
-          start = start + that.marketsLength[i - 1]
-          end = end + that.marketsLength[i]
+          // console.log(valueData)
+          for (let n in this.nameData) {
+            if (valueData[n] !== '--') {
+              let oldValue = parseFloat(this.notipsData[n].value[6])
+              let newValue = parseFloat(valueData[n][6])
+              let m = parseFloat(n) + 1
+              let changeDom = this.$refs.marketColumn.$refs.content[m]
+              if (oldValue < newValue) {
+                this.notipsData[n].value = valueData[n]
+                addClass(changeDom, 'shadowUp')
+                setTimeout(() => {
+                  removeClass(changeDom, 'shadowUp')
+                }, 500)
+              } else {
+                this.notipsData[n].value = valueData[n]
+                addClass(changeDom, 'shadowDown')
+                setTimeout(() => {
+                  removeClass(changeDom, 'shadowDown')
+                }, 500)
+              }
+              //console.log(this.notipsData[n].value, valueData[n])
+            }
+          }
         }
-        that.marketsData.push(that.nameData.slice(start, end))
       }
     },
-    _getIndicators () {
-      var nameData = []
-      var agentData = []
-      var marketsData = []
-      var marketsLength = []
+    _getIndicators (type) {
       getIndicators({
         session: this.userInfo.session
       }).then(res => {
-        this.marketNav = Object.keys(res)
-        this.marketNav.unshift('自选')
-        for (var i in res) {
-          marketsData = marketsData.concat(res[i])
-          marketsLength.push(res[i].length)
+        //console.log(res)
+        //this.marketNav = Object.keys(res)
+        let marketNav = []
+        for (let n in res) {
+          marketNav.push(res[n].cateName)
         }
-
+        marketNav.push('自选')
+        this.marketNav = marketNav
+        this.originData = []
+        for (var i in res) {
+          if (!res[i].exchange) {
+            this.originData.push(res[i].indicators)
+          } else {
+            this.originData.push({
+              exchange: res[i].exchange,
+              indicators: res[i].indicators
+            })
+          }
+        }
+        this._getMarketsData()
+      })
+    },
+    _getMarketsData () {
+      this.notipsData = []
+      this.subNavData = []
+      this.isLoading = true
+      this.isNoResult = false
+      if (this.type < 3) {
+        let nameData = this.originData[this.type]
+        if (!nameData.exchange) {
+          for (let i in nameData) {
+            nameData[i].indicator_id = nameData[i].id
+          }
+          this.nameData = nameData
+          this.sendSocketData()
+        } else {
+          this.subNavData = nameData.exchange
+          for (let i in nameData.indicators) {
+            nameData.indicators[i].indicator_id = nameData.indicators[i].id
+          }
+          let exchangeNameData = []
+          for (let a in nameData.exchange) {
+            exchangeNameData[a] = []
+            for (let b in nameData.indicators) {
+              if (nameData.exchange[a].id === nameData.indicators[b].exchange_id) {
+                exchangeNameData[a].push(nameData.indicators[b])
+              }
+            }
+          }
+          this.nameData = exchangeNameData[this.subType]
+          this.sendSocketData()
+        }
+      } else {
         getFavorIndicatorList({
           session: this.userInfo.session
         }).then(res => {
-          marketsLength.unshift(res.length)
-          marketsData = res.concat(marketsData)
-          for (let o = 0; o < marketsData.length; o++) {
-            agentData.push(marketsData[o].table_name)
-            nameData.push({
-              name: marketsData[o].indicator_name,
-              code: marketsData[o].indicator_code,
-              id: marketsData[o].indicator_id,
-              status: marketsData[o].status,
-              value: []
-            })
+          if (res.length !== 0) {
+            this.nameData = res
+            this.sendSocketData()
+          } else {
+            this.isNoResult = true
+            this.isLoading = false
           }
-          this.marketsLength = marketsLength
-          this.nameData = nameData
-          this.socket = new WebSocketClass('markets', agentData, this.getConfigResult)
-          this.socket.connect()
         })
-      })
+      }
+    },
+    sendSocketData () {
+      var agentData = []
+      for (var o in this.nameData) {
+        agentData.push(this.nameData[o].table_name)
+      }
+      this.socket = new WebSocketClass('markets', agentData, this.getConfigResult)
+      this.socket.connect()
     },
     change (i) {
       this.type = i
-    },
-    shadow () {
-      addClass(this.$refs.test, 'red')
-      setTimeout(() => {
-        removeClass(this.$refs.test, 'red')
-      }, 500)
-    }
-  },
-  watch: {
-    type (val) {
       this.socket.closeMyself()
-      this.marketsData = []
-      this._getIndicators()
+      this.isFirst = true
+      this._getMarketsData()
+    },
+    subNavChange (i) {
+      this.subType = i
+      this.socket.closeMyself()
+      this.isFirst = true
+      this._getMarketsData()
     }
   },
   destroyed () {
     this.socket.closeMyself()
   },
   components: {
+    MarketColumn,
     RowNav,
     Loading,
     Confirm,
@@ -205,97 +223,6 @@ export default {
     display flex
     justify-content center
     margin 0 30px 30px 0
-  .market-wrapper
-    .subNav
-      display flex
-      align-items center
-      height 52px
-      border-bottom 1px solid $color-line
-      .subNavItem
-        margin 0 25px
-      .subNavItem-s
-        position relative
-        color $color-white
-        span
-          &:after
-            position absolute
-            bottom -20px
-            left 0
-            content ''
-            width 100%
-            height 2px
-            background-color $color-blue
-    .content
-      padding 12px 24px
-      background-color $color-light-background
-      border-radius 12px
-      .column
-        display flex
-        align-items center
-        justify-content space-between
-        padding 12px 0
-        line-height 20px
-        border-bottom 1px solid $color-line
-        .item
-          width 12%
-          text-align right
-          &.name
-            width 14%
-            min-width 114px
-            text-align left
-            .name-z
-              color $color-white
-            &:hover
-              cursor pointer
-              .name-z
-                color $color-light-blue
-          &.price
-            font-weight 600
-            color $color-yellow
-          &.changePer,&.change
-            font-weight 600
-          &.add
-            width 8%
-            margin-left 6%
-            display flex
-            align-items center
-            justify-content center
-            height 28px
-            background-color $color-blue
-            color $color-white
-            border-radius 2px
-            cursor pointer
-            &:hover
-              background-color $color-dark-blue
-          &.delete
-            width 8%
-            margin-left 6%
-            display flex
-            align-items center
-            justify-content center
-            height 28px
-            background-color $color-light-purple
-            color $color-white
-            border-radius 2px
-            cursor pointer
-            &:hover
-              background-color $color-dark-blue
-          &.red
-            color $color-red
-          &.green
-            color $color-green
-        &:nth-child(1)
-          border-bottom none
-          .item
-            font-weight 600
-            color $color-text
-            .name-z
-              font-weight 600
-              color $color-text
-            &.add
-              visibility hidden
-        &:nth-last-child(1)
-          border-bottom none
   .no-result-wrapper
     margin-top 100px
 </style>

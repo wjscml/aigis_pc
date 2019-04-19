@@ -68,7 +68,7 @@ export default new Router({
         {
           path: '/market/site',
           name: 'marketDetail',
-          component: () => import('./pages/marketDetail/marketDetail.vue')
+          component: () => import('./pages/market-detail/market-detail.vue')
         },
         {
           path: '/vip_qusetion',

@@ -34,7 +34,7 @@
         </div>
       </router-link>
     </div>
-    <p class="copyright">©2018 Alaya.ai<br>鲁ICP备17050841号</p>
+    <p class="copyright">©2018 aigis.leadfintech<br>京ICP备12019798号</p>
     <div class="main-wrapper" :class="{'main-wrapper-index': isIndex}">
       <router-view></router-view>
     </div>
@@ -64,18 +64,13 @@ export default {
         },
         {
           name: 'report',
-          title: '深度报告',
+          title: '市场报告',
           url: '/report'
         },
         {
           name: 'market',
           title: '行情数据',
           url: '/market'
-        },
-        {
-          name: 'vip_qusetion',
-          title: '留言板',
-          url: '/vip_qusetion'
         },
         {
           name: 'vip_report',
@@ -91,6 +86,11 @@ export default {
           name: 'vip_value',
           title: '委托资管',
           url: '/vip_value'
+        },
+        {
+          name: 'vip_qusetion',
+          title: '问题咨询',
+          url: '/vip_qusetion'
         }
       ],
       query: ''

@@ -4,7 +4,6 @@
     <div ref="editorBar" class="toolbar"></div>
     <div ref="editorElem" class="text"></div>
   </div>
-  <p></p>
   <confirm @confirm="submit" :text="confirmTxt" ref="confirm" id="confirm"></confirm>
 </div>
 </template>
@@ -19,6 +18,12 @@ export default {
     return {
       confirmTxt: '确定发布内容吗？',
       editorContent: ''
+    }
+  },
+  props: {
+    session: {
+      type: String,
+      default: ''
     }
   },
   computed: {
@@ -45,16 +50,15 @@ export default {
         this.editorContent = html
         this.$emit('html', this.editorContent)
       }
-      editor.customConfig.uploadImgServer = 'https://api.cnibd.com/site/index?method=user.uploadImage&format=json'
-      editor.customConfig.uploadFileName = 'qusetion_img'
+      editor.customConfig.uploadImgServer = '/apis/site/index?method=user.uploadImage&format=json'
+      editor.customConfig.uploadImgParams = {
+        session: this.session
+      }
+      editor.customConfig.uploadFileName = 'img'
       editor.customConfig.menus = [
-        'head',
         'bold',
         'italic',
         'underline',
-        'fontSize',
-        'foreColor',
-        'list',
         'justify',
         'quote',
         'image',
@@ -87,12 +91,9 @@ export default {
           // xhr 是 XMLHttpRequst 对象，editor 是编辑器对象
         }
       }
-      editor.customConfig.onfocus = function () {
-        editor.txt.clear()
-      }
-      editor.customConfig.uploadImgMaxSize = 1 * 1024 * 1024
-      editor.customConfig.pasteFilterStyle = false
 
+      editor.customConfig.uploadImgMaxSize = 1 * 1024 * 1024
+      editor.customConfig.pasteIgnoreImg = true
       editor.create()
     }
   },
@@ -102,14 +103,14 @@ export default {
 }
 </script>
 
-<style lang="stylus" scoped>
+<style lang="stylus">
 @import "~common/stylus/variable"
 .editor
   .toolbar
     background-color $color-line
   .text
     background-color $color-white
-    height 100px
+    min-height 100px
   .w-e-toolbar
     .w-e-menu
       i
@@ -117,4 +118,6 @@ export default {
       &:hover
         i
           color $color-light-blue
+  .w-e-text-container
+    color $color-light-background
 </style>

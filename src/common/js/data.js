@@ -60,6 +60,9 @@ export function formatNumber (nStr) {
 
 export function toDecimal (x) {
   var f = parseFloat(x)
+  if (isNaN(f)) {
+    return x
+  }
   var s = f.toString()
   var rs = s.indexOf('.')
   if (rs < 0) {
@@ -71,9 +74,3 @@ export function toDecimal (x) {
   }
   return s
 }
-
-export function toText (HTML)
-  {
-    var input = HTML
-    return input.replace(/<(style|script|iframe)[^>]*?>[\s\S]+?<\/\1\s*>/gi,'').replace(/<[^>]+?>/g,'').replace(/\s+/g,' ').replace(/ /g,' ').replace(/>/g,' ');
-  }

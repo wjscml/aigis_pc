@@ -75,8 +75,8 @@ export default {
     font-size 15px
     .icon-record
       margin 0 8px
-      font-size 16px
-      color $color-purple
+      font-size 17px
+      color $color-search
     span
       color $color-white
   .record-content

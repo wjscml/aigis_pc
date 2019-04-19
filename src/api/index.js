@@ -29,7 +29,9 @@ const getSearch = postApi('quantification.tradingsearch')
 const getRefresh = postApi('quantification.tradingRefresh')
 
 const getSearchList = postApi('article.getSearchList')
+const getAllQuestion = postApi('user.getAllQuestion')
 const submitQuestion = postFileApi('user.submitQuestion')
+const deleteQuestion = postApi('user.questionDelete')
 const changeUserInfo = postFileApi('user.changeUserInfo')
 
 export {
@@ -62,6 +64,8 @@ export {
   getRefresh,
 
   getSearchList,
+  getAllQuestion,
   submitQuestion,
+  deleteQuestion,
   changeUserInfo
 }

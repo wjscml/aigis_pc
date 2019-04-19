@@ -18,9 +18,20 @@
 import { toDecimal } from 'common/js/data.js'
 import WebSocketClass from 'api/socket.js'
 
+
 export default {
   data () {
     return {
+      isFirst: true,
+      nameData: [
+        { table_name: 'CURRENCY_USDCNH_FX', name: '人民币汇率', code: 'USDCNH.FX' },
+        { table_name: 'COMMODITY_CL00Y_NYM', name: '原油', code: 'CL00Y.NYM' },
+        { table_name: 'COMMODITY_GC00Y_CMX', name: '黄金', code: 'GC00Y.CMX' },
+        { table_name: 'COMMODITY_HG00Y_CMX', name: '铜', code: 'HG00Y.CMX' },
+        { table_name: 'INDEX_000001_SH', name: '上证指数', code: '000001.SH' },
+        { table_name: 'INDEX_IXIC_GI', name: '纳斯达克100', code: 'IXIC.GI' },
+        { table_name: 'INDEX_SPX_GI', name: '标普500', code: 'SPX.GI' }
+      ],
       scrollData: [],
       screenWidth: document.body.clientWidth
     }
@@ -32,6 +43,9 @@ export default {
     toNumber (str) {
       return toDecimal(str)
     }
+  },
+  computed: {
+
   },
   mounted () {
     window.onresize = () => {
@@ -48,44 +62,42 @@ export default {
     toDetail (item) {
       window.open(`/market/site?symbol=${item.code}&interval=1D&description=${item.name}`)
     },
+    getScrollData () {
+      let data = []
+      if (this.screenWidth < 1318) {
+        data = this.marketsData.slice(0, 5)
+        return data
+      } else if (this.screenWidth < 1600) {
+        data = this.marketsData.slice(0, 6)
+        return data
+      }
+      return this.marketsData.slice(0, 7)
+    },
     getConfigResult (res) {
-      let nameData = [
-        { table_name: 'INDEX_SPX_GI', name: '标普500', code: 'SPX.GI' },
-        { table_name: 'INDEX_IXIC_GI', name: '纳斯达克100', code: 'IXIC.GI' },
-        { table_name: 'INDEX_000001_SH', name: '上证指数', code: '000001.SH' },
-        { table_name: 'COMMODITY_CL00Y_NYM', name: '原油', code: 'CL00Y.NYM' },
-        { table_name: 'COMMODITY_GC00Y_CMX', name: '黄金', code: 'GC00Y.CMX' },
-        { table_name: 'COMMODITY_USDX_FX', name: '美元指数', code: 'USDX.FX' },
-        { table_name: 'COMMODITY_HG00Y_CMX', name: '铜', code: 'HG00Y.CMX' }
-      ]
-      if (res) {
+      if (res.length) {
         // scrollData = res.data.map((o, i) => {
         //   return Object.assign(o, this.nameData[i])
         // })
-        for (let o in res) {
-          nameData[o].value = res[o]
+        if (this.isFirst) {
+          this.isFirst = false
+          this.marketsData = this.nameData
+          for (let o in res) {
+            this.marketsData[o].value = res[o]
+          }
+        } else {
+          for (let o in res) {
+            if (res[o] !== '--') {
+              this.marketsData[o].value = res[o]
+            }
+          }
         }
-        this.scrollData = nameData.splice(0, 7)
-        if (this.screenWidth < 1318) {
-          this.scrollData = this.scrollData.splice(0, 5)
-        } else if (this.screenWidth < 1600) {
-          this.scrollData = this.scrollData.splice(0, 6)
-        }
+        this.scrollData = this.getScrollData()
       }
     },
     _getScrollData () {
-      let nameData = [
-        { table_name: 'INDEX_SPX_GI', name: '标普500', code: 'SPX.GI' },
-        { table_name: 'INDEX_IXIC_GI', name: '纳斯达克100', code: 'IXIC.GI' },
-        { table_name: 'INDEX_000001_SH', name: '上证指数', code: '000001.SH' },
-        { table_name: 'COMMODITY_CL00Y_NYM', name: '原油', code: 'CL00Y.NYM' },
-        { table_name: 'COMMODITY_GC00Y_CMX', name: '黄金', code: 'GC00Y.CMX' },
-        { table_name: 'CURRENCY_USDX_FX', name: '美元指数', code: 'USDX.FX' },
-        { table_name: 'COMMODITY_HG00Y_CMX', name: '铜', code: 'HG00Y.CMX' }
-      ]
       var agentData = []
-      for (let i in nameData) {
-        agentData.push(nameData[i].table_name)
+      for (let i in this.nameData) {
+        agentData.push(this.nameData[i].table_name)
       }
       this.socket = new WebSocketClass('scrollmarkets', agentData, this.getConfigResult)
       this.socket.connect()
