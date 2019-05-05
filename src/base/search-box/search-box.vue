@@ -11,7 +11,7 @@ export default {
   props: {
     placeholder: {
       type: String,
-      default: 'Search...'
+      default: '请输入商品代码...'
     }
   },
   data () {

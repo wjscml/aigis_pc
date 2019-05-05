@@ -6,11 +6,13 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "report": "vue-cli-service build --report"
+    "report": "vue-cli-service build --report",
+    "modern": "vue-cli-service build --modern"
   },
   "dependencies": {
     "@antv/data-set": "^0.10.1",
     "@antv/g2": "^3.4.10",
+    "@babel/polyfill": "^7.4.4",
     "axios": "^0.18.0",
     "babel-eslint": "^10.0.1",
     "good-storage": "^1.1.0",
@@ -23,6 +25,7 @@
     "wangeditor": "^3.1.1"
   },
   "devDependencies": {
+    "@babel/polyfill": "^7.4.4",
     "@vue/cli-plugin-eslint": "^3.3.0",
     "@vue/cli-service": "^3.3.0",
     "babel-cli": "^6.26.0",

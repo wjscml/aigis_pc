@@ -5,6 +5,9 @@ function resolve (dir) {
 }
 
 module.exports = {
+  transpileDependencies: [
+    'webpack-dev-server/client',
+  ],
   devServer: {
     proxy: {
       '^~ /websocket': {

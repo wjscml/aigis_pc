@@ -16,7 +16,7 @@ import { getNomalList } from 'api'
 import { mapGetters } from 'vuex'
 import { extend } from 'common/js/data'
 
-const COUNT = 6
+const COUNT = 9
 export default {
   data () {
     return {

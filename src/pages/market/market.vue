@@ -110,7 +110,7 @@ export default {
         }
       }
     },
-    _getIndicators (type) {
+    _getIndicators () {
       getIndicators({
         session: this.userInfo.session
       }).then(res => {

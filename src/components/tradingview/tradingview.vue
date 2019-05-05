@@ -6,14 +6,14 @@
 import { getHistory, getSearch, getRefresh } from 'api'
 import { widget } from 'src/charting_library.min'
 
-function getParameterByName(name) {
-  name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]')
-  var regex = new RegExp('[\\?&]' + name + '=([^&#]*)')
-  results = regex.exec(location.search)
-  return results === null
-    ? ''
-    : decodeURIComponent(results[1].replace(/\+/g, ' '))
-}
+// function getParameterByName(name) {
+//   name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]')
+//   var regex = new RegExp('[\\?&]' + name + '=([^&#]*)')
+//   results = regex.exec(location.search)
+//   return results === null
+//     ? ''
+//     : decodeURIComponent(results[1].replace(/\+/g, ' '))
+// }
 
 const supportedResolutions = ['1', '5', '60', 'D', 'W', 'M']
 const config = {
@@ -67,7 +67,6 @@ var Datafeed = {
       intraday_multipliers: ['1'], //这是一个包含日内分辨率(分钟单位)的数组
       volume_precision: 8, //整数显示此商品的成交量数字的小数位。0表示只显示整数。1表示保留小数位的1个数字字符
       data_status: 'streaming', //数据状态(streaming(实时),endofday(已收盘),pulsed(脉冲),delayed_streaming(延迟流动中))
-      has_intraday: true,
       timeframe: '1D'
     };
     setTimeout(function() {
@@ -111,11 +110,13 @@ var Datafeed = {
             high: el.high,
             open: el.open,
             close: el.close
-          };
-        });
+          }
+        })
         onHistoryCallback(bars, { noData: false })
       } else {
-        onHistoryCallback(bars, { noData: true })
+        if (data.errorCode > 0) {
+          onHistoryCallback(bars, { noData: true })
+        }
       }
     })
   },
@@ -144,14 +145,16 @@ var Datafeed = {
         code: symbolName.split(':')[0] || symbolName,
         reso: reso
       }).then(el => {
-        var bar = {
-          time: el.time * 1000, //TradingView requires bar time in ms
-          low: el.low,
-          high: el.high,
-          open: el.open,
-          close: el.close
-        };
-        onRealtimeCallback(bar)
+        if (!el.errorCode) {
+          var bar = {
+            time: el.time * 1000, //TradingView requires bar time in ms
+            low: el.low,
+            high: el.high,
+            open: el.open,
+            close: el.close
+          }
+          onRealtimeCallback(bar)
+        }
       })
     }, 3000)
     subcribeArr[subscriberUID] = ajaxObj
@@ -191,7 +194,7 @@ var Datafeed = {
   },
 
   //当图表需要知道服务器时间时，如果配置标志supports_time设置为true，则调用此函数
-  getServerTime: function(cb) {}
+  getServerTime: function() {}
 }
 export default {
   name: "TVChartContainer",
@@ -320,36 +323,18 @@ export default {
       custom_css_url: '/charting_library/static/bundles/chart.css'
     }
 
-    //
-
     const tvWidget = new widget(widgetOptions)
     this.tvWidget = tvWidget
-    tvWidget.onChartReady(() => {
-      const button = tvWidget
-        .createButton()
-        .attr("title", "Click to show a notification popup")
-        .addClass("apply-common-tooltip")
-        .on("click", () =>
-          tvWidget.showNoticeDialog({
-            title: "Notification",
-            body: "TradingView Charting Library API works correctly",
-            callback: () => {
-              // eslint-disable-next-line no-console
-              console.log("Noticed!")
-            }
-          })
-        );
-      button[0].innerHTML = "Check API"
-    })
+    tvWidget.onChartReady(() => {})
   },
   methods: {},
-  destroyed() {
+  destroyed () {
     // if (this.tvWidget !== null) {
-    //   this.tvWidget.remove();
-    //   this.tvWidget = null;
+    //   this.tvWidget.remove()
+    //   this.tvWidget = null
     // }
   }
-};
+}
 </script>
 
 <style lang="stylus" scoped>

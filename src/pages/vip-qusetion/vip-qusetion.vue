@@ -5,7 +5,7 @@
         <i class="icon-write"></i>
         <span>提出您的问题</span>
       </p>
-      <editor :session="this.userInfo.session" @img="getImg" @html="getHtml" @submit="submit" ref="editor"></editor>
+      <editor :session="session" @img="getImg" @html="getHtml" @submit="submit" ref="editor"></editor>
       <button class="editor-submit" @click="toConfirm">确认提交</button>
       <p class="submit-error" v-show="isError"><i class="icon-notice"></i><a>{{errorTips}}</a></p>
     </div>
@@ -15,7 +15,8 @@
         <span>留言记录</span>
       </p>
       <qusetion-record @delete="_deleteQuestion" :questionData="questionContent" v-show="questionContent.length"></qusetion-record>
-      <no-result tips="暂无记录~" v-show="!questionContent.length"></no-result>
+      <loading v-show="!questionContent.length && !noData"></loading>
+      <no-result tips="暂无记录~" v-show="noData"></no-result>
     </div>
     <confirm :hasCancel="false" :text="confirmTxt" cancelBtnText="关闭" ref="confirm" id="confirm"></confirm>
   </div>
@@ -26,6 +27,7 @@ import Editor from 'components/editor/editor.vue'
 import QusetionRecord from 'components/qusetion-record/qusetion-record.vue'
 import Confirm from 'components/confirm/confirm'
 import NoResult from 'base/no-result/no-result'
+import Loading from 'base/loading/loading'
 import { submitQuestion, getAllQuestion, deleteQuestion } from 'api'
 
 import { mapGetters } from 'vuex'
@@ -36,13 +38,18 @@ export default {
       isError: null,
       errorTips: '',
       confirmTxt: '提交成功，Alaya团队会尽快为您解答问题~',
-      qusetionData: []
+      qusetionData: [],
+      noData: null
     }
   },
   created () {
     this._getAllQuestion()
   },
   computed: {
+    session () {
+      if (this.userInfo)
+      return this.userInfo.session
+    },
     questionContent () {
       return this.qusetionData
     },
@@ -63,12 +70,17 @@ export default {
       getAllQuestion({
         session: this.userInfo.session
       }).then(res => {
-        this.qusetionData = res.reverse()
-        for (var o in this.qusetionData) {
-          this.qusetionData[o].ask_content = this.addImgBox(this.qusetionData[o].ask_content)
-          if (this.qusetionData[o].is_replied) {
-            this.qusetionData[o].reply.answer_content = this.addImgBox(this.qusetionData[o].reply.answer_content)
+        if (res.length) {
+          this.noData = false
+          this.qusetionData = res.reverse()
+          for (var o in this.qusetionData) {
+            this.qusetionData[o].ask_content = this.addImgBox(this.qusetionData[o].ask_content)
+            if (this.qusetionData[o].is_replied) {
+              this.qusetionData[o].reply.answer_content = this.addImgBox(this.qusetionData[o].reply.answer_content)
+            }
           }
+        } else {
+          this.noData = true
         }
       })
     },
@@ -113,7 +125,8 @@ export default {
     Editor,
     QusetionRecord,
     Confirm,
-    NoResult
+    NoResult,
+    Loading
   }
 }
 </script>

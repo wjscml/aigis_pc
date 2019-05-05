@@ -49,7 +49,7 @@ export default new Router({
           name: 'report',
           component: () => import('./pages/report/report.vue'),
           meta: {
-            title: '深度报告 - Aigis - 埃癸斯风险控制系统'
+            title: '市场报告 - Aigis - 埃癸斯风险控制系统'
           }
         },
         {
@@ -75,7 +75,7 @@ export default new Router({
           name: 'vipQusetion',
           component: () => import('./pages/vip-qusetion/vip-qusetion.vue'),
           meta: {
-            title: '问题解答 - Aigis - 埃癸斯风险控制系统'
+            title: '问题咨询 - Aigis - 埃癸斯风险控制系统'
           }
         },
         {

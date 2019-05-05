@@ -10,11 +10,15 @@
         </router-link>
         <div class="search-box-wrapper">
           <search-box ref="searchBox" @query="onQueryChange"></search-box>
-        </div>
-        <div class="user-box-wrapper">
 
-          <img class="avatar" :src="avatar" alt="avatar">
+          <div class="search-result">
+            <suggest :query="query"></suggest>
+          </div>
+        </div>
+
+        <div class="user-box-wrapper">
           <span class="name">{{nickname}}</span>
+          <img class="avatar" :src="avatar" alt="avatar">
           <div class="user-pulldown">
             <ul>
               <router-link to="/forget" tag="li">修改密码</router-link>
@@ -44,6 +48,7 @@
 <script>
 import Confirm from 'components/confirm/confirm'
 import SearchBox from 'base/search-box/search-box'
+import Suggest from 'components/suggest/suggest'
 import ScrollMarkets from 'components/scroll-markets/scroll-markets'
 import { mapGetters, mapActions } from 'vuex'
 
@@ -93,7 +98,8 @@ export default {
           url: '/vip_qusetion'
         }
       ],
-      query: ''
+      query: '',
+      ensure: false
     }
   },
   props: {
@@ -104,9 +110,11 @@ export default {
   },
   computed: {
     nickname () {
+      if (this.userInfo)
       return this.userInfo.nickname
     },
     avatar () {
+      if (this.userInfo)
       return this.userInfo.avatar
     },
     ...mapGetters([
@@ -129,8 +137,9 @@ export default {
         this.$refs.confirm.show()
       }
     },
-    onQueryChange (newQuery) {
-      this.query = newQuery
+    onQueryChange (query) {
+      this.query = query
+      this.$refs.searchBox.setQuery(query)
     },
     ...mapActions([
       'saveUserInfo'
@@ -138,6 +147,7 @@ export default {
   },
   components: {
     SearchBox,
+    Suggest,
     ScrollMarkets,
     Confirm
   }
@@ -163,11 +173,21 @@ export default {
           font-size 30px
           color #fff
       .search-box-wrapper
-        flex 1
+        position relative
+        flex 2
         margin-right 100px
+        min-width 420px
+        .search-result
+          position absolute
+          left 46px
+          right 6px
+          top 40px
+          z-index 100
       .user-box-wrapper
+        flex 1
         position relative
         display flex
+        flex-direction row-reverse
         align-items center
         color $color-light-purple
         .icon-bell

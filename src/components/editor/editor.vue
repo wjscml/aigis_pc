@@ -60,7 +60,6 @@ export default {
         'italic',
         'underline',
         'justify',
-        'quote',
         'image',
         'undo',
         'redo'

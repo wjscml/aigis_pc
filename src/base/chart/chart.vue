@@ -1,7 +1,7 @@
 <template>
-<div :id="name">
+  <div :id="name">
 
-</div>
+  </div>
 </template>
 
 <script>
@@ -40,6 +40,8 @@ export default {
       default: 'yField'
     },
     sourceData: {
+      type: Array,
+      default: () => []
     },
     tickCount: {
       type: Number,
@@ -76,9 +78,7 @@ export default {
   methods: {
     createChart () {
       this.chart && this.chart.destroy()
-      let data = this.sourceData
-      const ds = new DataSet()
-      const dv = ds.createView().source(data)
+      const dv = new DataSet.View().source(this.sourceData)
       dv.transform({
         type: 'fold',
         fields: this.fieldsText,

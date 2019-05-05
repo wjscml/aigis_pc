@@ -25,8 +25,6 @@ import Confirm from 'components/confirm/confirm'
 import { addClass, removeClass } from 'common/js/dom.js'
 import { getCurrentTime } from 'common/js/data.js'
 
-import Vue from 'vue'
-
 export default {
   data () {
     return {

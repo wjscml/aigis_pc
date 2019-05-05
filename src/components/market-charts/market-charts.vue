@@ -3,14 +3,17 @@
     <div class="charts-column" v-for="(column, index) in charts" :key="index">
       <a class="column-wrapper" v-if="charts.length">
         <div class="column-title">
+          <i v-show="column.isTop" class="icon-ignore"></i>
           <p class="name" @click="goDetail(column)">{{column.indicator_name}}</p>
+
           <i class="icon-more" @click="toggleLayer(index)"></i>
           <div class="layer_menu_list" v-show="index == limit">
             <ul>
-              <li @click.stop="stick(index)" v-if="!column.isTop">置顶</li>
-              <li @click.stop="unstick(index)" v-if="column.isTop">取消置顶</li>
+              <li @click.stop="stick(index)" v-show="!column.isTop">置顶</li>
+              <li @click.stop="unstick(index)" v-show="column.isTop">取消置顶</li>
             </ul>
           </div>
+
           <div class="mask" @click="hideLayer" v-show="index == limit"></div>
         </div>
         <div @click="goDetail(column)">
@@ -28,6 +31,7 @@ import LoadingSmall from 'base/loading/loading-small'
 import Chart from 'base/chart/chart'
 import { mapActions, mapGetters } from 'vuex'
 import { getFavorIndicatorList, getDaysData } from 'api'
+import { setTimeout } from 'timers';
 
 const default1 = { id: 1, indicator_id: 3, indicator_name: 'WTI原油当月连续', indicator_code: 'CL00Y.NYM', status: 1 }
 const default2 = { id: 9, indicator_id: 5, indicator_name: 'COMEX黄金', indicator_code: 'GC00Y.CMX', status: 1 }
@@ -62,37 +66,47 @@ export default {
     unstick (i) {
       this.toggleLayer(i)
       this.saveStickNumber(0)
-      this.$router.go(0)
+      this._getDaysData()
     },
     stick (i) {
       this.toggleLayer(i)
       this.saveStickNumber(this.charts[i].indicator_id)
-      this.$router.go(0)
+      this._getDaysData()
     },
-    _getDaysData (data) {
-      let daysData = []
-      for (let r in data) {
-        if (data[r].indicator_id === this.stickNumber) {
-          data[r].isTop = 1
-          var returntop = data[r]
-          data = data.filter(function (item) {
+    _getDaysData () {
+      this.charts = []
+      let daysData = this.chartsData
+      for (let n in daysData) {
+        if (daysData[n].indicator_id === this.stickNumber) {
+          daysData[n].isTop = 1
+          var returntop = daysData[n]
+          daysData = daysData.filter(function (item) {
             return item != returntop
           })
-          data.unshift(returntop)
+          daysData.unshift(returntop)
+          getDaysData({
+            indicatorId: daysData[n].indicator_id
+          }).then(response => {
+            for (let o in response) {
+              response[o].time = response[o].ftime,
+              response[o].value = Number(response[o].CLOSE)
+            }
+            daysData[n].data = response
+            daysData[n].name = 'indexMarket' + daysData[n].id
+          })
+        } else {
+          daysData[n].isTop = 0
+          getDaysData({
+            indicatorId: daysData[n].indicator_id
+          }).then(response => {
+            for (let o in response) {
+              response[o].time = response[o].ftime,
+              response[o].value = Number(response[o].CLOSE)
+            }
+            daysData[n].data = response
+            daysData[n].name = 'indexMarket' + daysData[n].id
+          })
         }
-        daysData = data
-      }
-      for (let n in daysData) {
-        getDaysData({
-          indicatorId: daysData[n].indicator_id
-        }).then(response => {
-          for (let o in response) {
-            response[o].time = response[o].ftime,
-            response[o].value = Number(response[o].CLOSE)
-          }
-          daysData[n].data = response
-          daysData[n].name = 'indexMarket' + daysData[n].id
-        })
       }
       setTimeout(() => {
         this.charts = daysData
@@ -103,7 +117,8 @@ export default {
         session: this.userInfo.session
       }).then(res => {
         if (res.length > 1) {
-          this._getDaysData(res)
+          this.chartsData = res
+          this._getDaysData()
         } else {
           for (var i in res) {
             if (res[i] === (default1 || default2 || default3)) {
@@ -111,7 +126,8 @@ export default {
             }
           }
           res.push(default1, default2, default3)
-          this._getDaysData(res)
+          this.chartsData = res
+          this._getDaysData()
         }
       })
     },
@@ -156,6 +172,9 @@ export default {
         margin-bottom 24px
         height 24px
         color #fff
+        .icon-ignore
+          margin-right 8px
+          color $color-light-blue
         .name
           flex 1
           cursor pointer

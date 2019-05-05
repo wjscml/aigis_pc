@@ -24,10 +24,10 @@ export default {
     return {
       isFirst: true,
       nameData: [
-        { table_name: 'CURRENCY_USDCNH_FX', name: '人民币汇率', code: 'USDCNH.FX' },
         { table_name: 'COMMODITY_CL00Y_NYM', name: '原油', code: 'CL00Y.NYM' },
         { table_name: 'COMMODITY_GC00Y_CMX', name: '黄金', code: 'GC00Y.CMX' },
         { table_name: 'COMMODITY_HG00Y_CMX', name: '铜', code: 'HG00Y.CMX' },
+        { table_name: 'CURRENCY_USDCNH_FX', name: '人民币汇率', code: 'USDCNH.FX' },
         { table_name: 'INDEX_000001_SH', name: '上证指数', code: '000001.SH' },
         { table_name: 'INDEX_IXIC_GI', name: '纳斯达克100', code: 'IXIC.GI' },
         { table_name: 'INDEX_SPX_GI', name: '标普500', code: 'SPX.GI' }
@@ -64,7 +64,7 @@ export default {
     },
     getScrollData () {
       let data = []
-      if (this.screenWidth < 1318) {
+      if (this.screenWidth < 1280) {
         data = this.marketsData.slice(0, 5)
         return data
       } else if (this.screenWidth < 1600) {
@@ -118,7 +118,7 @@ export default {
 @import "~common/stylus/variable"
 .scroll
   display flex
-  justify-content space-between
+  justify-content space-around
   padding 12px 0 14px
   background-color $color-light-background
   .item
@@ -126,7 +126,7 @@ export default {
     flex-direction column
     justify-content space-between
     padding 0 22px
-    width calc(16.6% - 44px)
+    width calc(16.66% - 44px)
     min-width 168px
     height 40px
     font-size 12px
@@ -152,4 +152,9 @@ export default {
         margin-right 8px
         font-weight 600
         font-size 24px
+@media screen and (max-width: 1280px)
+  .scroll
+    .item
+      width calc(20% - 44px)
+
 </style>
